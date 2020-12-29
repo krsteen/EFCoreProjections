@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Model\DbContext\" />
+    <Folder Include="Model\Report\" />
     <Folder Include="Service\" />
   </ItemGroup>
 
