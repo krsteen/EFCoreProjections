@@ -14,6 +14,11 @@ namespace EFCorePerformance.Cmd.Model
         public virtual DbSet<ReportConfigWithBasicIndex> ReportConfigsWithBasicIndexes { get; set; }
 
         //MODELS WITH BETTER INDEXES
+        public virtual DbSet<ReportWithBetterIndex> ReportsWithBetterIndex { get; set; }
+
+        public virtual DbSet<ReportCommentWithBetterIndex> ReportCommentsWithBetterIndex { get; set; }
+
+        public virtual DbSet<ReportConfigWithBetterIndex> ReportConfigsWithBetterIndexes { get; set; }
 
 
         //WITH INDEXING
@@ -21,6 +26,7 @@ namespace EFCorePerformance.Cmd.Model
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             SetupReportsWithBasicIndexes(modelBuilder);
+            SetupReportsWithBetterIndexes(modelBuilder);
         }
 
         void SetupReportsWithBasicIndexes(ModelBuilder modelBuilder)
@@ -37,6 +43,25 @@ namespace EFCorePerformance.Cmd.Model
               .HasForeignKey(d => d.ReportId);
 
             modelBuilder.Entity<ReportWithBasicIndex>()
+            .HasOne(r => r.Config)
+            .WithMany(c => c.Reports)
+            .HasForeignKey(r => r.ConfigId);
+        }
+
+        void SetupReportsWithBetterIndexes(ModelBuilder modelBuilder)
+        {
+            //Primary keys
+            modelBuilder.Entity<ReportWithBetterIndex>().HasKey(v => v.Id);
+            modelBuilder.Entity<ReportCommentWithBetterIndex>().HasKey(v => v.Id);
+            modelBuilder.Entity<ReportConfigWithBetterIndex>().HasKey(v => v.Id);
+
+            //Relationships
+            modelBuilder.Entity<ReportCommentWithBetterIndex>()
+              .HasOne(d => d.Report)
+              .WithMany(r => r.Comments)
+              .HasForeignKey(d => d.ReportId);
+
+            modelBuilder.Entity<ReportWithBetterIndex>()
             .HasOne(r => r.Config)
             .WithMany(c => c.Reports)
             .HasForeignKey(r => r.ConfigId);
