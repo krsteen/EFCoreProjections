@@ -65,6 +65,9 @@ namespace EFCorePerformance.Cmd.Model
             .HasOne(r => r.Config)
             .WithMany(c => c.Reports)
             .HasForeignKey(r => r.ConfigId);
+
+            //Todo: Add indexes
+
         }
 
     }
