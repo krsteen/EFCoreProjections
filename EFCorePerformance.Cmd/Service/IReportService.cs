@@ -2,10 +2,10 @@
 
 namespace EFCorePerformance.Cmd.Service
 {
-    public interface IReportsService
+    public interface IReportService
     {  
         Task<string> GetAsJsonAsync(int id);
-
-        Task<string> GetListAsJsonAsync();
+        Task<string> GetDetailedListAsJsonAsync();
+        Task<string> GetLightListAsJsonAsync();
     }
 }

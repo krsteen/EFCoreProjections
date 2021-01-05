@@ -19,14 +19,6 @@ namespace EFCorePerformance.Cmd.Service
             Db = new MyDbContextFactory().CreateDbContext(new string[0]);
         }
 
-        protected string Serialize(object whatToSerialize)
-        {
-
-            return JsonConvert.SerializeObject(whatToSerialize, Formatting.None,
-                         new JsonSerializerSettings()
-                         {
-                             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                         });
-        }
+       
     }
 }

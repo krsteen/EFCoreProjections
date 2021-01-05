@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EFCorePerformance.Cmd.DapperModel
 {
+    [Table("ReportsWithBetterIndex")]
     public class ReportDapper
     {
-        public int Id { get; set; }
+        public int ReportId { get; set; }
 
         public string Name { get; set; }
 
@@ -16,9 +18,9 @@ namespace EFCorePerformance.Cmd.DapperModel
 
         public int ConfigId { get; set; }
 
-        //public List<ReportCommentWithBetterIndex> Comments { get; set; }
+        public List<ReportCommentDapper> Comments { get; set; }
 
 
-        //public ReportConfigWithBetterIndex Config { get; set; }
+        public ReportConfigDapper Config { get; set; }
     }
 }
