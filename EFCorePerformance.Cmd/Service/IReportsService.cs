@@ -1,15 +1,11 @@
-﻿using EFCorePerformance.Cmd.Model;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace EFCorePerformance.Cmd.Service
 {
     public interface IReportsService
-    {
-        Task<ReportWithBasicIndex> GetById(int id);
+    {  
+        Task<string> GetAsJsonAsync(int id);
 
-        Task<List<ReportWithBasicIndex>> ReportList();
+        Task<string> GetListAsJsonAsync();
     }
 }

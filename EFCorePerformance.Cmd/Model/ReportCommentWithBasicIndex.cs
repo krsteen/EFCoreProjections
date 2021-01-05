@@ -1,4 +1,6 @@
-﻿namespace EFCorePerformance.Cmd.Model
+﻿using System;
+
+namespace EFCorePerformance.Cmd.Model
 {
     public class ReportCommentWithBasicIndex
     {
@@ -7,7 +9,7 @@
         public int ReportId { get; set; }
 
         public string Comment { get; set; }
-
+       
         public ReportWithBasicIndex Report { get; set; }
     }
 }

@@ -1,7 +1,6 @@
-﻿using EFCorePerformance.Cmd.Model;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Dapper;
+using EFCorePerformance.Cmd.DapperModel;
+using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace EFCorePerformance.Cmd.Service
@@ -9,41 +8,36 @@ namespace EFCorePerformance.Cmd.Service
     public class ReportsServiceBetterIndexesAndDapper : ServiceBase, IReportsService
     {
         public ReportsServiceBetterIndexesAndDapper()
-            :base()
+            : base()
         {
         }
 
-        public async Task<ReportWithBasicIndex> GetById(int id)
+        public async Task<string> GetAsJsonAsync(int id)
         {
-            var report = await _db.ReportsWithBasicIndex
-                .Include(r => r.Config)
-                //.Include(r => r.Comments)
-                .SingleOrDefaultAsync();
-
-            await AddCommentsInAnIncrediblyLazyWay(report);
-
-            return report;
-        }
-
-        //Worst lazy load method ever!!
-        async Task AddCommentsInAnIncrediblyLazyWay(ReportWithBasicIndex report)
-        {
-            report.Comments = await _db.ReportCommentsWithBasicIndex.Where(rc => rc.ReportId == report.Id).ToListAsync();           
-        }
-
-        public async Task<List<ReportWithBasicIndex>> ReportList()
-        {
-            var reports = await _db.ReportsWithBasicIndex
-              .Include(r => r.Config)
-              //.Include(r => r.Comments)
-              .ToListAsync();
-
-            foreach(var currentReport in reports)
+            using (var connection = new SqlConnection(ConnectionString))
             {
-                await AddCommentsInAnIncrediblyLazyWay(currentReport);
-            }
+                var query = $"SELECT * FROM [dbo].[ReportsWithBetterIndex] WHERE [Id] = @Id";
 
-            return reports;
+                await connection.OpenAsync();
+
+                var report = await connection.QuerySingleAsync<ReportDapper>(query, new { Id = id });
+
+                return Serialize(report);
+            }           
+        }
+
+        public async Task<string> GetListAsJsonAsync()
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                var query = $"SELECT * FROM [dbo].[ReportsWithBetterIndex] ORDER BY [Id] OFFSET 100 ROWS FETCH NEXT 20 ROWS ONLY";
+
+                await connection.OpenAsync();
+
+                var reports = await connection.QueryAsync<ReportDapper>(query);
+
+                return Serialize(reports);
+            }
         }
     }
 }

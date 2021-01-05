@@ -2,6 +2,8 @@
 
 namespace EFCorePerformance.Cmd.Model
 {
+    //Add-Migration <migration name> -Context MyDbContext -StartupProject EFCorePerformance.Cmd -Project EFCorePerformance.Cmd
+
     public class MyDbContext : DbContext
     {
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
@@ -32,7 +34,7 @@ namespace EFCorePerformance.Cmd.Model
         void SetupReportsWithBasicIndexes(ModelBuilder modelBuilder)
         {
             //Primary keys
-            modelBuilder.Entity<ReportWithBasicIndex>().HasKey(v => v.Id);
+            modelBuilder.Entity<ReportWithBasicIndex>().HasKey(v => v.Id);          
             modelBuilder.Entity<ReportCommentWithBasicIndex>().HasKey(v => v.Id);
             modelBuilder.Entity<ReportConfigWithBasicIndex>().HasKey(v => v.Id);
 

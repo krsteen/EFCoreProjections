@@ -1,27 +1,32 @@
 ﻿using EFCorePerformance.Cmd.Model;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System.IO;
+using Newtonsoft.Json;
 
 namespace EFCorePerformance.Cmd.Service
 {
     public class ServiceBase
     {
-        protected MyDbContext _db { get; private set; }
+        protected string ConnectionString;
+        protected MyDbContext Db { get; private set; }
 
-       public ServiceBase() {
-            var config = new ConfigurationBuilder()
-                   .SetBasePath(Directory.GetCurrentDirectory())
-                  .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
-        
-             .Build();
-
-            string connectionString = config["DbConnectionString"];
+        public ServiceBase()
+        {
+            ConnectionString = ConfigUtil.GetDbConnectionString();
 
             var optionsBuilder = new DbContextOptionsBuilder<MyDbContext>();
-            optionsBuilder.UseSqlServer(connectionString);
+            optionsBuilder.UseSqlServer(ConnectionString);
             optionsBuilder.EnableSensitiveDataLogging(true);
-            _db = new MyDbContext(optionsBuilder.Options);
+            Db = new MyDbContextFactory().CreateDbContext(new string[0]);
+        }
+
+        protected string Serialize(object whatToSerialize)
+        {
+
+            return JsonConvert.SerializeObject(whatToSerialize, Formatting.None,
+                         new JsonSerializerSettings()
+                         {
+                             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                         });
         }
     }
 }
