@@ -5,13 +5,12 @@ using Newtonsoft.Json;
 namespace EFCorePerformance.Cmd.Service
 {
     public class ReportServiceBase : ServiceBase
-    {
-        protected bool ConvertToDto;      
+    {           
 
-        public ReportServiceBase(bool convertToDto)
+        public ReportServiceBase()
             :base()
         {
-            ConvertToDto = convertToDto;          
+                  
         }
 
         protected string Serialize(object whatToSerialize)

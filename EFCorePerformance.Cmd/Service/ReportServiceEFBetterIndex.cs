@@ -7,17 +7,17 @@ namespace EFCorePerformance.Cmd.Service
 {
     public class ReportServiceEFBetterIndex : ReportServiceBase, IReportService
     {
-        readonly bool useBadLazyLoad;
-        readonly bool useNoTracking;
+        protected readonly bool useBadLazyLoad;
+        protected readonly bool useNoTracking;
 
-        public ReportServiceEFBetterIndex(bool convertToDto, bool useBadLazyLoad, bool useNoTracking)
-            : base(convertToDto)
+        public ReportServiceEFBetterIndex(bool useBadLazyLoad, bool useNoTracking)
+            : base()
         {
             this.useBadLazyLoad = useBadLazyLoad;
             this.useNoTracking = useNoTracking;
         }
 
-        IQueryable<ReportWithBetterIndex> GetReportQueryable(bool anyIncludes)
+        protected IQueryable<ReportWithBetterIndex> GetReportQueryable(bool anyIncludes)
         {
             var reportQueryable = Db.ReportsWithBetterIndex.AsQueryable();
 

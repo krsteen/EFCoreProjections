@@ -10,8 +10,8 @@ namespace EFCorePerformance.Cmd.Service
         readonly bool useBadLazyLoad;
         readonly bool useNoTracking;
 
-        public ReportServiceEFBasicIndex(bool convertToDto, bool useBadLazyLoad, bool useNoTracking)
-            : base(convertToDto)
+        public ReportServiceEFBasicIndex(bool useBadLazyLoad, bool useNoTracking)
+            : base()
         {         
             this.useBadLazyLoad = useBadLazyLoad;
             this.useNoTracking = useNoTracking;
