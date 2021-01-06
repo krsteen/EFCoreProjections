@@ -34,14 +34,14 @@ namespace EFCorePerformance.Cmd.Model
         void SetupReportsWithBasicIndexes(ModelBuilder modelBuilder)
         {
             //Primary keys
-            modelBuilder.Entity<ReportWithBasicIndex>().HasKey(v => v.Id);          
+            modelBuilder.Entity<ReportWithBasicIndex>().HasKey(v => v.Id);
             modelBuilder.Entity<ReportCommentWithBasicIndex>().HasKey(v => v.Id);
             modelBuilder.Entity<ReportConfigWithBasicIndex>().HasKey(v => v.Id);
 
             //Relationships
             modelBuilder.Entity<ReportCommentWithBasicIndex>()
               .HasOne(d => d.Report)
-              .WithMany(r=> r.Comments)
+              .WithMany(r => r.Comments)
               .HasForeignKey(d => d.ReportId);
 
             modelBuilder.Entity<ReportWithBasicIndex>()
@@ -68,7 +68,15 @@ namespace EFCorePerformance.Cmd.Model
             .WithMany(c => c.Reports)
             .HasForeignKey(r => r.ConfigId);
 
-            //Todo: Add indexes
+            //Add indexes
+            modelBuilder.Entity<ReportWithBetterIndex>()
+            .HasIndex(p => p.Name)
+            .IncludeProperties(p => new
+            {
+                p.Id,
+                p.Status
+            })
+            .HasFilter("[IsArchived] = 0");
 
         }
 

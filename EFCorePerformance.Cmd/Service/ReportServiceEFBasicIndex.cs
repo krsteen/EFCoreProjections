@@ -65,9 +65,10 @@ namespace EFCorePerformance.Cmd.Service
             report.Comments = await Db.ReportCommentsWithBasicIndex.Where(rc => rc.ReportId == report.Id).ToListAsync();
         }
 
-        public async Task<string> GetLightListAsJsonAsync()
+        public async Task<string> GetLightListAsJsonAsync(string nameLike = null)
         {
             var reports = await GetReportQueryable(false)
+                .If(nameLike != null, c=> c.Where(r=> r.Name.Contains(nameLike)))
               .Where(r => r.IsArchived == false)
               .OrderBy(r => r.Id)
               .Skip(Constants.DEFAULT_SKIP)
@@ -79,11 +80,12 @@ namespace EFCorePerformance.Cmd.Service
             return Serialize(reportsDto);
         }
 
-        public async Task<string> GetDetailedListAsJsonAsync()
+        public async Task<string> GetDetailedListAsJsonAsync(string nameLike = null)
         {
             var reportQueryable = GetReportQueryable(true);
 
             var reports = await reportQueryable
+                .If(nameLike != null, c => c.Where(r => r.Name.Contains(nameLike)))
                   .Where(r => r.IsArchived == false)
             .OrderBy(r => r.Id)
             .Skip(Constants.DEFAULT_SKIP)

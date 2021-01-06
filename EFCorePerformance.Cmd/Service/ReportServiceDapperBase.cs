@@ -61,7 +61,7 @@ namespace EFCorePerformance.Cmd.Service
             }           
         }
 
-        protected async Task<string> GetDetailedListAsJsonInternalAsync()
+        protected async Task<string> GetDetailedListAsJsonInternalAsync(string nameLike = null)
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
@@ -90,13 +90,14 @@ namespace EFCorePerformance.Cmd.Service
                          return reportEntry;
                      },
                       splitOn: "ConfigId, CommentId"
+
                      );
 
                 return Serialize(reports.Distinct().ToList());
             }
         }
 
-        public async Task<string> GetLightListAsJsonInternalAsync()
+        public async Task<string> GetLightListAsJsonInternalAsync(string nameLike = null)
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
