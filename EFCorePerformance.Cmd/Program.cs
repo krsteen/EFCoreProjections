@@ -17,7 +17,7 @@ namespace EFCorePerformance.Cmd
         {
             //await ResetDatabase();
 
-            await RunTestsOnService(new ReportServiceEFBasicIndex(true, false), 0, "EF, Basic Index, Bad lazy load", 0, 1, 2);
+            await RunTestsOnService(new ReportServiceEFBasicIndex(true, false), 0, "EF, Basic Index, Bad lazy load", 0, 1, 2, 3, 4);
 
             await RunTestsOnService(new ReportServiceEFBasicIndex(false, false), 1, "EF, Basic Index, Correct Include", 0, 1, 2, 3, 4);
 
@@ -25,17 +25,17 @@ namespace EFCorePerformance.Cmd
 
             await RunTestsOnService(new ReportServiceEFBetterIndex(true, true), 3, "EF, Better Index, Correct Include, AsNoTracking", 0, 1, 2, 3, 4);
 
-            await RunTestsOnService(new ReportServiceEFBetterIndexProjection(), 4, "EF, Better Index, Correct Include, AsNoTracking, Projection", 1,2);
+            await RunTestsOnService(new ReportServiceEFBetterIndexProjection(), 4, "EF, Better Index, Correct Include, AsNoTracking, Projection", 1, 2);
 
             await RunTestsOnService(new ReportServiceDapperBasicIndexes(), 5, "Dapper, Basic Indexed", 0, 1, 2, 3, 4);
 
             await RunTestsOnService(new ReportServiceDapperBetterIndexes(), 6, "Dapper, Better Indexed", 0, 1, 2, 3, 4);
-          
+
 
             //Able to cause client side validaiton?
 
             //Same query without client side validation?       
-          
+
 
             StatCsvWriter.Write(Stats);
 
@@ -68,7 +68,7 @@ namespace EFCorePerformance.Cmd
         static async Task RunTestsOnService(IReportService service, int serviceIndex, string scenarioName, params int[] testsToRun)
         {
             var clearCacheService = new ClearDbCacheService();
-         
+
             LgService(service, "Starting");
 
             double elapsedTotal = 0;
@@ -105,7 +105,7 @@ namespace EFCorePerformance.Cmd
                 await clearCacheService.ClearCache();
                 //get light report list with search
                 spElapsed.Restart();
-                var reporLightListJson = await service.GetLightListAsJsonAsync("basic index 6");
+                var reporLightListJson = await service.GetLightListAsJsonAsync(Constants.REPORT_NAME_SEARCH);
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
                 AddToSummary(service, "light list with search", reporLightListJson, spElapsed.Elapsed.TotalMilliseconds);
@@ -131,7 +131,7 @@ namespace EFCorePerformance.Cmd
                 await clearCacheService.ClearCache();
                 //get detailed report list with search
                 spElapsed.Restart();
-                var reportListJson = await service.GetDetailedListAsJsonAsync("basic index 6");
+                var reportListJson = await service.GetDetailedListAsJsonAsync(Constants.REPORT_NAME_SEARCH);
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
                 AddToSummary(service, "detailed list with search", reportListJson, spElapsed.Elapsed.TotalMilliseconds);

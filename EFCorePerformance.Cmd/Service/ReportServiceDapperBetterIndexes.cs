@@ -11,7 +11,6 @@ namespace EFCorePerformance.Cmd.Service
 
         public async Task<string> GetAsJsonAsync(int id)
         {
-
             return await base.GetAsJsonInternalAsync(id);        
         }
 

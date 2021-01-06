@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace EFCorePerformance.Cmd.Model
 {
-    public class ReportConfigWithBetterIndex
+    public class ReportConfig
     {
-        public int Id { get; set; }       
+        public int ConfigId { get; set; }
 
         public string Name { get; set; }
 
@@ -12,7 +14,6 @@ namespace EFCorePerformance.Cmd.Model
 
         public string VeryUsefulInformation { get; set; }
 
-        public List<ReportWithBetterIndex> Reports { get; set; }
-
+       
     }
 }

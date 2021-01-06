@@ -1,8 +1,8 @@
-﻿namespace EFCorePerformance.Cmd.DapperModel
+﻿namespace EFCorePerformance.Cmd.Model.Dapper
 {
     public class ReportListItemDapper
     {
-        public int Id { get; set; }
+        public int ReportId { get; set; }
 
         public string Name { get; set; }
 

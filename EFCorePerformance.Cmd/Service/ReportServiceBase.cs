@@ -1,6 +1,4 @@
-﻿using EFCorePerformance.Cmd.Model;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace EFCorePerformance.Cmd.Service
 {

@@ -1,6 +1,5 @@
 ﻿using EFCorePerformance.Cmd.Model;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace EFCorePerformance.Cmd.Service
 {
@@ -17,8 +16,6 @@ namespace EFCorePerformance.Cmd.Service
             optionsBuilder.UseSqlServer(ConnectionString);
             optionsBuilder.EnableSensitiveDataLogging(true);
             Db = new MyDbContextFactory().CreateDbContext(new string[0]);
-        }
-
-       
+        }       
     }
 }

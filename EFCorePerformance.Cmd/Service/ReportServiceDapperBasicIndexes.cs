@@ -16,12 +16,12 @@ namespace EFCorePerformance.Cmd.Service
 
         public async Task<string> GetDetailedListAsJsonAsync(string nameLike = null)
         {
-            return await base.GetDetailedListAsJsonInternalAsync();            
+            return await base.GetDetailedListAsJsonInternalAsync(nameLike);            
         }
 
         public async Task<string> GetLightListAsJsonAsync(string nameLike = null)
         {
-            return await base.GetLightListAsJsonInternalAsync();
+            return await base.GetLightListAsJsonInternalAsync(nameLike);
         } 
     }
 }

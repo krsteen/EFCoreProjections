@@ -19,7 +19,7 @@ namespace EFCorePerformance.Cmd.Service
             var reports = await GetReportQueryable(false)
                  .If(nameLike != null, c => c.Where(r => r.Name.Contains(nameLike)))
               .Where(r => r.IsArchived == false)            
-              .OrderBy(r => r.Id)
+              .OrderBy(r => r.ReportId)
               .Skip(Constants.DEFAULT_SKIP)
               .Take(Constants.DEFAULT_TAKE)
                 .Select(r => new ReportListItemDto(r.Id, r.Name, r.Status))

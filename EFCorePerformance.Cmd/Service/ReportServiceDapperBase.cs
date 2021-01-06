@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using EFCorePerformance.Cmd.DapperModel;
+using EFCorePerformance.Cmd.Model.Dapper;
 using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +36,7 @@ namespace EFCorePerformance.Cmd.Service
                             FROM [dbo].[ReportsWith" + PartOfTableName + "Index] r";
                
                 query = AddJoins(query);
-                query = AddWhere(query);               
+                query = AddIdWhere(query);               
 
                 var reports = await connection.QueryAsync<ReportDapper, ReportConfigDapper, ReportCommentDapper, ReportDapper>(query,
 
@@ -73,6 +73,7 @@ namespace EFCorePerformance.Cmd.Service
                             FROM [dbo].[ReportsWith" + PartOfTableName + "Index] r";
 
                 query = AddJoins(query);
+                query = nameLike == null ? AddArchivedWhere(query) : AddNameWhere(query, nameLike);
                 query = AddPaging(query, Constants.DEFAULT_SKIP, Constants.DEFAULT_TAKE);             
 
                 var reports = await connection.QueryAsync<ReportDapper, ReportConfigDapper, ReportCommentDapper, ReportDapper>(query,
@@ -101,7 +102,8 @@ namespace EFCorePerformance.Cmd.Service
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
-                var query = $"SELECT r.Id, r.Name, r.Status FROM [dbo].[ReportsWith" + PartOfTableName + "Index] r";           
+                var query = $"SELECT r.Id, r.Name, r.Status FROM [dbo].[ReportsWith" + PartOfTableName + "Index] r";
+                query = nameLike == null ? AddArchivedWhere(query) : AddNameWhere(query, nameLike);
                 query = AddPaging(query, Constants.DEFAULT_SKIP, Constants.DEFAULT_TAKE);
 
                 await connection.OpenAsync();
@@ -124,9 +126,19 @@ namespace EFCorePerformance.Cmd.Service
             return baseQuery += $" ORDER BY r.[Id] OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
         }
 
-        string AddWhere(string baseQuery)
+        string AddArchivedWhere(string baseQuery)
         {
-            return baseQuery += " WHERE r.[Id] = @Id";
+            return baseQuery += " WHERE r.[IsArchived] = 0";
+        }
+
+        string AddIdWhere(string baseQuery)
+        {
+            return baseQuery += " WHERE r.[IsArchived] = 0 AND r.[Id] = @Id";
+        }
+
+        string AddNameWhere(string baseQuery, string name)
+        {
+            return baseQuery += $" WHERE r.[IsArchived] = 0 AND r.[Name] like '{name}%'";
         }
     }
 }

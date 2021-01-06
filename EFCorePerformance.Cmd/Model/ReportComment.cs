@@ -1,13 +1,11 @@
 ﻿namespace EFCorePerformance.Cmd.Model
 {
-    public class ReportCommentWithBetterIndex
+    public class ReportComment
     {
-        public int Id { get; set; }
+        public int CommentId { get; set; }
 
         public int ReportId { get; set; }
 
         public string Comment { get; set; }
-
-        public ReportWithBetterIndex Report { get; set; }
     }
 }
