@@ -62,7 +62,7 @@ namespace EFCorePerformance.Cmd.Service
         //Worst lazy load method ever!!
         async Task AddCommentsInAnIncrediblyLazyWay(ReportWithBasicIndex report)
         {
-            report.Comments = await Db.ReportCommentsWithBasicIndex.Where(rc => rc.ReportId == report.Id).ToListAsync();
+            report.Comments = await Db.ReportCommentsWithBasicIndex.Where(rc => rc.ReportId == report.ReportId).ToListAsync();
         }
 
         public async Task<string> GetLightListAsJsonAsync(string nameLike = null)

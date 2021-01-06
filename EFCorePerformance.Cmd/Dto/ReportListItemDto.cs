@@ -4,12 +4,12 @@
     {
         public ReportListItemDto(int id, string name, string status)
         {
-            Id = id;
+            ReportId = id;
             Name = name;
             Status = status;
         }
 
-        public int Id { get; set; }
+        public int ReportId { get; set; }
 
         public string Name { get; set; }
 

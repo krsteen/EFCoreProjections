@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EFCorePerformance.Cmd.Model.EF;
+using Microsoft.EntityFrameworkCore;
 
 namespace EFCorePerformance.Cmd.Model
 {
@@ -34,9 +35,9 @@ namespace EFCorePerformance.Cmd.Model
         void SetupReportsWithBasicIndexes(ModelBuilder modelBuilder)
         {
             //Primary keys
-            modelBuilder.Entity<ReportWithBasicIndex>().HasKey(v => v.Id);
-            modelBuilder.Entity<ReportCommentWithBasicIndex>().HasKey(v => v.Id);
-            modelBuilder.Entity<ReportConfigWithBasicIndex>().HasKey(v => v.Id);
+            modelBuilder.Entity<ReportWithBasicIndex>().HasKey(v => v.ReportId);
+            modelBuilder.Entity<ReportCommentWithBasicIndex>().HasKey(v => v.CommentId);
+            modelBuilder.Entity<ReportConfigWithBasicIndex>().HasKey(v => v.ConfigId);
 
             //Relationships
             modelBuilder.Entity<ReportCommentWithBasicIndex>()
@@ -53,9 +54,9 @@ namespace EFCorePerformance.Cmd.Model
         void SetupReportsWithBetterIndexes(ModelBuilder modelBuilder)
         {
             //Primary keys
-            modelBuilder.Entity<ReportWithBetterIndex>().HasKey(v => v.Id);
-            modelBuilder.Entity<ReportCommentWithBetterIndex>().HasKey(v => v.Id);
-            modelBuilder.Entity<ReportConfigWithBetterIndex>().HasKey(v => v.Id);
+            modelBuilder.Entity<ReportWithBetterIndex>().HasKey(v => v.ReportId);
+            modelBuilder.Entity<ReportCommentWithBetterIndex>().HasKey(v => v.CommentId);
+            modelBuilder.Entity<ReportConfigWithBetterIndex>().HasKey(v => v.ConfigId);
 
             //Relationships
             modelBuilder.Entity<ReportCommentWithBetterIndex>()
@@ -73,7 +74,7 @@ namespace EFCorePerformance.Cmd.Model
             .HasIndex(p => p.Name)
             .IncludeProperties(p => new
             {
-                p.Id,
+                p.ReportId,
                 p.Status
             })
             .HasFilter("[IsArchived] = 0");

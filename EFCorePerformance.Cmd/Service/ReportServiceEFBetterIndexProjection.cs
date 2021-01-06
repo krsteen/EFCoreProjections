@@ -22,7 +22,7 @@ namespace EFCorePerformance.Cmd.Service
               .OrderBy(r => r.ReportId)
               .Skip(Constants.DEFAULT_SKIP)
               .Take(Constants.DEFAULT_TAKE)
-                .Select(r => new ReportListItemDto(r.Id, r.Name, r.Status))
+                .Select(r => new ReportListItemDto(r.ReportId, r.Name, r.Status))
               .ToListAsync();          
 
             return Serialize(reports);
