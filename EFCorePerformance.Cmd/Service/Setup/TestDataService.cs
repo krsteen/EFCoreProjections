@@ -23,6 +23,7 @@ namespace EFCorePerformance.Cmd.Service
                 await connection.ExecuteAsync(CreateDeleteFrom("ReportCommentsWithBasicIndex"));
                 await connection.ExecuteAsync(CreateDeleteFrom("ReportsWithBasicIndex"));
                 await connection.ExecuteAsync(CreateDeleteFrom("ReportConfigsWithBasicIndexes"));
+
                 await connection.ExecuteAsync(CreateDeleteFrom("ReportCommentsWithBetterIndex"));
                 await connection.ExecuteAsync(CreateDeleteFrom("ReportsWithBetterIndex"));
                 await connection.ExecuteAsync(CreateDeleteFrom("ReportConfigsWithBetterIndexes"));
@@ -42,8 +43,9 @@ namespace EFCorePerformance.Cmd.Service
                 for (int reportConfigCounter = 1; reportConfigCounter < 100; reportConfigCounter++)
                 {                
                     var sbReportConfig = new StringBuilder();
-                    sbReportConfig.AppendLine(ConfigInsert("ReportConfigsWithBasicIndexes", reportConfigCounter, $"Report config basic index {reportConfigCounter}", $"Description for report config basic index {reportConfigCounter}", LongRandomText()));
-                    sbReportConfig.AppendLine(ConfigInsert("ReportConfigsWithBetterIndexes", reportConfigCounter, $"Report config basic index {reportConfigCounter}", $"Description for report config basic index {reportConfigCounter}", LongRandomText()));
+                    var randomText = LongRandomText();
+                    sbReportConfig.AppendLine(ConfigInsert("ReportConfigsWithBasicIndexes", $"Report config {reportConfigCounter}", $"Description for report config {reportConfigCounter}", randomText));
+                    sbReportConfig.AppendLine(ConfigInsert("ReportConfigsWithBetterIndexes", $"Report config {reportConfigCounter}", $"Description for report config {reportConfigCounter}", randomText));
                     await connection.ExecuteAsync(sbReportConfig.ToString());
 
                 
@@ -56,8 +58,8 @@ namespace EFCorePerformance.Cmd.Service
                         //Create report
                         var sbReport = new StringBuilder();
 
-                        sbReport.AppendLine(ReportInsert("ReportsWithBasicIndex", $"Report basic index {totalReportCounter}", $"Description for report basic index {totalReportCounter}", isArcived, reportStatus, reportConfigCounter));
-                        sbReport.AppendLine(ReportInsert("ReportsWithBetterIndex", $"Report basic index {totalReportCounter}", $"Description for report basic index {totalReportCounter}", isArcived, reportStatus, reportConfigCounter));
+                        sbReport.AppendLine(ReportInsert("ReportsWithBasicIndex", $"Report {totalReportCounter}", $"Description for report {totalReportCounter}", isArcived, reportStatus, reportConfigCounter));
+                        sbReport.AppendLine(ReportInsert("ReportsWithBetterIndex", $"Report {totalReportCounter}", $"Description for report {totalReportCounter}", isArcived, reportStatus, reportConfigCounter));
                         await connection.ExecuteAsync(sbReport.ToString());
                      
 
@@ -114,7 +116,7 @@ namespace EFCorePerformance.Cmd.Service
             return $"DBCC CHECKIDENT ('{tableName}', RESEED, 0)";
         }    
 
-        static string ConfigInsert(string tableName, int id, string name, string description, string veryUsefulInfo)
+        static string ConfigInsert(string tableName, string name, string description, string veryUsefulInfo)
         {
             //ReportConfigsWithBasicIndexes
             return $"INSERT INTO [dbo].[{tableName}] ([Name],[Description],[VeryUsefulInformation]) VALUES ('{name}', '{description}', '{veryUsefulInfo}');";

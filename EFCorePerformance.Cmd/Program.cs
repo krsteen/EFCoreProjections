@@ -3,6 +3,7 @@ using EFCorePerformance.Cmd.Stats;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,23 +14,27 @@ namespace EFCorePerformance.Cmd
         static List<string> Summaries = new List<string>();
         static List<RunStats> Stats = new List<RunStats>();
 
+        static string WorkingFolder = $"D:\\Workspace\\EFCorePerformance\\{DateTime.Now.ToFileTime()}\\";
+
         static async Task Main(string[] args)
         {
             //await ResetDatabase();
 
-            await RunTestsOnService(new ReportServiceEFBasicIndex(true, false), 0, "EF, Basic Index, Bad lazy load", 0, 1, 2, 3, 4);
+            Directory.CreateDirectory(WorkingFolder);
 
-            await RunTestsOnService(new ReportServiceEFBasicIndex(false, false), 1, "EF, Basic Index, Correct Include", 0, 1, 2, 3, 4);
+            await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: true, useNoTracking: false), 0, "EF Basic index Bad lazy load", 0, 3, 4);
 
-            await RunTestsOnService(new ReportServiceEFBasicIndex(true, true), 2, "EF, Basic Index, Correct Include, AsNoTracking", 0, 1, 2, 3, 4);
+            await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: false, useNoTracking: false), 1, "EF Basic index Include", 0, 1, 2, 3, 4);
 
-            await RunTestsOnService(new ReportServiceEFBetterIndex(true, true), 3, "EF, Better Index, Correct Include, AsNoTracking", 0, 1, 2, 3, 4);
+            await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: false, useNoTracking: true), 2, "EF Basic index Include AsNoTracking", 0, 1, 2, 3, 4);
 
-            await RunTestsOnService(new ReportServiceEFBetterIndexProjection(), 4, "EF, Better Index, Correct Include, AsNoTracking, Projection", 1, 2);
+            await RunTestsOnService(new ReportServiceEFBetterIndex(useBadLazyLoad: false, useNoTracking: true), 3, "EF Better index Include AsNoTracking", 0, 1, 2, 3, 4);
 
-            await RunTestsOnService(new ReportServiceDapperBasicIndexes(), 5, "Dapper, Basic Indexed", 0, 1, 2, 3, 4);
+            await RunTestsOnService(new ReportServiceEFBetterIndexProjection(), 4, "EF Better index Include AsNoTracking Projection", 1, 2);
 
-            await RunTestsOnService(new ReportServiceDapperBetterIndexes(), 6, "Dapper, Better Indexed", 0, 1, 2, 3, 4);
+            await RunTestsOnService(new ReportServiceDapperBasicIndexes(), 5, "Dapper basic index", 0, 1, 2, 3, 4);
+
+            await RunTestsOnService(new ReportServiceDapperBetterIndexes(), 6, "Dapper better index", 0, 1, 2, 3, 4);
 
 
             //Able to cause client side validaiton?
@@ -37,7 +42,7 @@ namespace EFCorePerformance.Cmd
             //Same query without client side validation?       
 
 
-            StatCsvWriter.Write(Stats);
+            StatCsvWriter.Write(Stats, WorkingFolder);
 
             foreach (var curSummaryItem in Summaries)
             {
@@ -59,10 +64,12 @@ namespace EFCorePerformance.Cmd
             Summaries.Add($"{service.GetType().Name}, {method}: elapsed {(int)elapsed}ms, size {byteCount} ");
         }
 
-        static void AddToStats(int serviceIndex, int testIndex, string testName, string method, double elapsed, string jsonResult)
+        static void AddToStats(int serviceIndex, int testIndex, string testName, string method, double elapsed, string jsonResult, int itemCount)
         {
             var byteCount = Encoding.UTF8.GetByteCount(jsonResult);
-            Stats.Add(new RunStats(serviceIndex, testIndex, testName, method, (int)elapsed, byteCount));
+            Stats.Add(new RunStats(serviceIndex, testIndex, testName, method, (int)elapsed, itemCount, byteCount));
+
+            File.WriteAllTextAsync($"{WorkingFolder}_{serviceIndex}_{testIndex}_{testName.Replace(", ", "")}_{method.Replace(" ", "")}.json", jsonResult);
         }
 
         static async Task RunTestsOnService(IReportService service, int serviceIndex, string scenarioName, params int[] testsToRun)
@@ -79,64 +86,60 @@ namespace EFCorePerformance.Cmd
             if (testsToRunHs.Contains(0))
             {
                 await clearCacheService.ClearCache();
-                //Get single report
-                var singleReportJson = await service.GetAsJsonAsync(1121);
+          
+                var reportResponse = await service.GetAsJsonAsync(1121);
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
-                AddToSummary(service, "by id", singleReportJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 0, scenarioName, "single item", spElapsed.Elapsed.TotalMilliseconds, singleReportJson);
+                AddToSummary(service, "by id", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
+                AddToStats(serviceIndex, 0, scenarioName, "single item", spElapsed.Elapsed.TotalMilliseconds, reportResponse.ResultAsJson, reportResponse.ItemCount);
             }
 
             if (testsToRunHs.Contains(1))
             {
                 await clearCacheService.ClearCache();
-                //get light report list
+               
                 spElapsed.Restart();
-                var reporLightListJson = await service.GetLightListAsJsonAsync();
+                var reportResponse = await service.GetLightListAsJsonAsync();
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
-                AddToSummary(service, "light list", reporLightListJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 1, scenarioName, "light list", spElapsed.Elapsed.TotalMilliseconds, reporLightListJson);
-
+                AddToSummary(service, "light list", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
+                AddToStats(serviceIndex, 1, scenarioName, "light list", spElapsed.Elapsed.TotalMilliseconds, reportResponse.ResultAsJson, reportResponse.ItemCount);
             }
 
             if (testsToRunHs.Contains(2))
             {
                 await clearCacheService.ClearCache();
-                //get light report list with search
+              
                 spElapsed.Restart();
-                var reporLightListJson = await service.GetLightListAsJsonAsync(Constants.REPORT_NAME_SEARCH);
+                var reportResponse = await service.GetLightListAsJsonAsync(Constants.REPORT_NAME_SEARCH);
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
-                AddToSummary(service, "light list with search", reporLightListJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 2, scenarioName, "light list with search", spElapsed.Elapsed.TotalMilliseconds, reporLightListJson);
-
+                AddToSummary(service, "light list with search", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
+                AddToStats(serviceIndex, 2, scenarioName, "light list with search", spElapsed.Elapsed.TotalMilliseconds, reportResponse.ResultAsJson, reportResponse.ItemCount);
             }
 
             if (testsToRunHs.Contains(3))
             {
                 await clearCacheService.ClearCache();
-                //get detailed report list
+               
                 spElapsed.Restart();
-                var reportListJson = await service.GetDetailedListAsJsonAsync();
+                var reportResponse = await service.GetDetailedListAsJsonAsync();
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
-                AddToSummary(service, "detailed list", reportListJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 3, scenarioName, "detailed list", spElapsed.Elapsed.TotalMilliseconds, reportListJson);
-
+                AddToSummary(service, "detailed list", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
+                AddToStats(serviceIndex, 3, scenarioName, "detailed list", spElapsed.Elapsed.TotalMilliseconds, reportResponse.ResultAsJson, reportResponse.ItemCount);
             }
 
             if (testsToRunHs.Contains(4))
             {
                 await clearCacheService.ClearCache();
-                //get detailed report list with search
+           
                 spElapsed.Restart();
                 var reportListJson = await service.GetDetailedListAsJsonAsync(Constants.REPORT_NAME_SEARCH);
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
-                AddToSummary(service, "detailed list with search", reportListJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 4, scenarioName, "detailed list with search", spElapsed.Elapsed.TotalMilliseconds, reportListJson);
-
+                AddToSummary(service, "detailed list with search", reportListJson.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
+                AddToStats(serviceIndex, 4, scenarioName, "detailed list with search", spElapsed.Elapsed.TotalMilliseconds, reportListJson.ResultAsJson, reportListJson.ItemCount);
             }
 
             LgService(service, $"Completed in {(int)elapsedTotal}");

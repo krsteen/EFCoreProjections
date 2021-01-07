@@ -1,9 +1,6 @@
-﻿using EFCorePerformance.Cmd.Model;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using Microsoft.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace EFCorePerformance.Cmd.Service
 {

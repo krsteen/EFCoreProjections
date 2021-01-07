@@ -2,13 +2,14 @@
 {
     public class RunStats
     {
-        public RunStats(int serviceIndex, int testIndex, string testName, string methodName, int elapsedMs, int sizeBytes)
+        public RunStats(int serviceIndex, int testIndex, string testName, string methodName, int elapsedMs, int itemCount, int sizeBytes)
         {
             ServiceIndex = serviceIndex;
             TestIndex = testIndex;
             TestName = testName;
             MethodName = methodName;
             ElapsedMs = elapsedMs;
+            ItemCount = itemCount;
             SizeBytes = sizeBytes;
         }
 
@@ -21,6 +22,8 @@
         public string MethodName { get; set; }
 
         public int ElapsedMs { get; set; }
+
+        public int ItemCount { get; set; }
 
         public int SizeBytes { get; set; }
     }

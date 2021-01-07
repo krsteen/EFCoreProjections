@@ -1,6 +1,7 @@
 ﻿using EFCorePerformance.Cmd.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace EFCorePerformance.Cmd
 {

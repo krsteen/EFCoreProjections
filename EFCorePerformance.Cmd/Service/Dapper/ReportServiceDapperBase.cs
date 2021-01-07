@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using EFCorePerformance.Cmd.Dto;
 using EFCorePerformance.Cmd.Model.Dapper;
 using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
@@ -24,23 +25,24 @@ namespace EFCorePerformance.Cmd.Service
             }
         }
 
-        protected async Task<string> GetAsJsonInternalAsync(int id)
+        protected async Task<ReportResponse> GetAsJsonInternalAsync(int id)
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
                 var reportDictionary = new Dictionary<int, ReportDapper>();
 
-                var query = @"SELECT r.Id as ReportId, r.Name, r.Description, r.IsArchived, r.Status,
-                            cnf.Id as ConfigId, cnf.Name, cnf.Description, cnf.VeryUsefulInformation,
-                            cm.Id as CommentId, cm.Comment
+                var query = @"SELECT r.ReportId, r.Name, r.Description, r.IsArchived, r.Status,
+                            cnf.ConfigId, cnf.Name, cnf.Description, cnf.VeryUsefulInformation,
+                            cm.CommentId, cm.Comment
                             FROM [dbo].[ReportsWith" + PartOfTableName + "Index] r";
-               
+
                 query = AddJoins(query);
-                query = AddIdWhere(query);               
+                query = AddIdWhere(query);
 
                 var reports = await connection.QueryAsync<ReportDapper, ReportConfigDapper, ReportCommentDapper, ReportDapper>(query,
 
-                      (report, config, comment) => {
+                      (report, config, comment) =>
+                      {
 
                           if (!reportDictionary.TryGetValue(report.ReportId, out ReportDapper reportEntry))
                           {
@@ -53,31 +55,36 @@ namespace EFCorePerformance.Cmd.Service
                           reportEntry.Comments.Add(comment);
                           return reportEntry;
                       },
-                    
+
                     new { Id = id },
                       splitOn: "ConfigId, CommentId");
-              
-                return Serialize(reports.Distinct().SingleOrDefault());
-            }           
+
+                var reportDto = new ReportDto(reports.Distinct().SingleOrDefault());
+
+                var result = new ReportResponse(1, Serialize(reportDto));
+
+                return result;
+            }
         }
 
-        protected async Task<string> GetDetailedListAsJsonInternalAsync(string nameLike = null)
+        protected async Task<ReportResponse> GetDetailedListAsJsonInternalAsync(string nameLike = null)
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
                 var reportDictionary = new Dictionary<int, ReportDapper>();
 
-                var query = @"SELECT r.Id as ReportId, r.Name, r.Description, r.IsArchived, r.Status,
-                            cnf.Id as ConfigId, cnf.Name, cnf.Description, cnf.VeryUsefulInformation,
-                            cm.Id as CommentId, cm.Comment
+                var query = @"SELECT r.ReportId, r.Name, r.Description, r.IsArchived, r.Status,
+                            cnf.ConfigId, cnf.Name, cnf.Description, cnf.VeryUsefulInformation,
+                            cm.CommentId, cm.Comment
                             FROM [dbo].[ReportsWith" + PartOfTableName + "Index] r";
 
                 query = AddJoins(query);
-                query = nameLike == null ? AddArchivedWhere(query) : AddNameWhere(query, nameLike);
-                query = AddPaging(query, Constants.DEFAULT_SKIP, Constants.DEFAULT_TAKE);             
+                query = nameLike == null ? AddArchivedWhere(query) : AddNameWhere(query);
+                query = AddPaging(query, Constants.DEFAULT_SKIP, Constants.DEFAULT_TAKE);
 
                 var reports = await connection.QueryAsync<ReportDapper, ReportConfigDapper, ReportCommentDapper, ReportDapper>(query,
-                     (report, config, comment) => {
+                     (report, config, comment) =>
+                     {
 
                          if (!reportDictionary.TryGetValue(report.ReportId, out ReportDapper reportEntry))
                          {
@@ -90,40 +97,44 @@ namespace EFCorePerformance.Cmd.Service
                          reportEntry.Comments.Add(comment);
                          return reportEntry;
                      },
+                     param: nameLike == null ? null : new { Name = $"{nameLike}" },
                       splitOn: "ConfigId, CommentId"
 
                      );
 
-                return Serialize(reports.Distinct().ToList());
+                var reportsDistinct = reports.Distinct().ToList();
+                return new ReportResponse(reportsDistinct.Count, Serialize(reportsDistinct));
             }
         }
 
-        public async Task<string> GetLightListAsJsonInternalAsync(string nameLike = null)
+        public async Task<ReportResponse> GetLightListAsJsonInternalAsync(string nameLike = null)
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
-                var query = $"SELECT r.Id, r.Name, r.Status FROM [dbo].[ReportsWith" + PartOfTableName + "Index] r";
-                query = nameLike == null ? AddArchivedWhere(query) : AddNameWhere(query, nameLike);
+                var query = $"SELECT r.ReportId, r.Name, r.Status FROM [dbo].[ReportsWith" + PartOfTableName + "Index] r";
+                query = nameLike == null ? AddArchivedWhere(query) : AddNameWhere(query);
                 query = AddPaging(query, Constants.DEFAULT_SKIP, Constants.DEFAULT_TAKE);
 
                 await connection.OpenAsync();
 
-                var reports = await connection.QueryAsync<ReportListItemDapper>(query);
+                var reports = await connection.QueryAsync<ReportListItemDapper>(query,
+                    param: nameLike == null ? null : new { Name = $"{nameLike}" }
+                    );
 
-                return Serialize(reports);
+                var result = new ReportResponse(reports.Count(), Serialize(reports));
+
+                return result;
             }
         }
 
-     
-
         string AddJoins(string baseQuery)
         {
-            return baseQuery += " INNER JOIN [dbo].[ReportConfigsWith" + PartOfTableName + "Indexes] cnf ON r.ConfigId = cnf.Id INNER JOIN [dbo].[ReportCommentsWith" + PartOfTableName + "Index] cm ON r.Id = cm.ReportId ";
+            return baseQuery += " INNER JOIN [dbo].[ReportConfigsWith" + PartOfTableName + "Indexes] cnf ON r.ConfigId = cnf.ConfigId INNER JOIN [dbo].[ReportCommentsWith" + PartOfTableName + "Index] cm ON r.ReportId = cm.ReportId ";
         }
 
         string AddPaging(string baseQuery, int skip, int take)
         {
-            return baseQuery += $" ORDER BY r.[Id] OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
+            return baseQuery += $" ORDER BY r.[ReportId] OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
         }
 
         string AddArchivedWhere(string baseQuery)
@@ -133,12 +144,12 @@ namespace EFCorePerformance.Cmd.Service
 
         string AddIdWhere(string baseQuery)
         {
-            return baseQuery += " WHERE r.[IsArchived] = 0 AND r.[Id] = @Id";
+            return baseQuery += " WHERE r.[IsArchived] = 0 AND r.[ReportId] = @Id";
         }
 
-        string AddNameWhere(string baseQuery, string name)
+        string AddNameWhere(string baseQuery)
         {
-            return baseQuery += $" WHERE r.[IsArchived] = 0 AND r.[Name] like '{name}%'";
+            return baseQuery += $" WHERE r.[IsArchived] = 0 AND r.[Name] = @Name";
         }
     }
 }

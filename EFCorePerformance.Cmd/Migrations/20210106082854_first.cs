@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace EFCorePerformance.Cmd.Migrations
 {
-    public partial class firstcreate : Migration
+    public partial class first : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -10,7 +11,7 @@ namespace EFCorePerformance.Cmd.Migrations
                 name: "ReportConfigsWithBasicIndexes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    ConfigId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -18,14 +19,14 @@ namespace EFCorePerformance.Cmd.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReportConfigsWithBasicIndexes", x => x.Id);
+                    table.PrimaryKey("PK_ReportConfigsWithBasicIndexes", x => x.ConfigId);
                 });
 
             migrationBuilder.CreateTable(
                 name: "ReportConfigsWithBetterIndexes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    ConfigId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -33,29 +34,29 @@ namespace EFCorePerformance.Cmd.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReportConfigsWithBetterIndexes", x => x.Id);
+                    table.PrimaryKey("PK_ReportConfigsWithBetterIndexes", x => x.ConfigId);
                 });
 
             migrationBuilder.CreateTable(
                 name: "ReportsWithBasicIndex",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    ReportId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
                     IsArchived = table.Column<bool>(type: "bit", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     ConfigId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReportsWithBasicIndex", x => x.Id);
+                    table.PrimaryKey("PK_ReportsWithBasicIndex", x => x.ReportId);
                     table.ForeignKey(
                         name: "FK_ReportsWithBasicIndex_ReportConfigsWithBasicIndexes_ConfigId",
                         column: x => x.ConfigId,
                         principalTable: "ReportConfigsWithBasicIndexes",
-                        principalColumn: "Id",
+                        principalColumn: "ConfigId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -63,22 +64,22 @@ namespace EFCorePerformance.Cmd.Migrations
                 name: "ReportsWithBetterIndex",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    ReportId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
                     IsArchived = table.Column<bool>(type: "bit", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     ConfigId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReportsWithBetterIndex", x => x.Id);
+                    table.PrimaryKey("PK_ReportsWithBetterIndex", x => x.ReportId);
                     table.ForeignKey(
                         name: "FK_ReportsWithBetterIndex_ReportConfigsWithBetterIndexes_ConfigId",
                         column: x => x.ConfigId,
                         principalTable: "ReportConfigsWithBetterIndexes",
-                        principalColumn: "Id",
+                        principalColumn: "ConfigId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -86,19 +87,19 @@ namespace EFCorePerformance.Cmd.Migrations
                 name: "ReportCommentsWithBasicIndex",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    CommentId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ReportId = table.Column<int>(type: "int", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReportCommentsWithBasicIndex", x => x.Id);
+                    table.PrimaryKey("PK_ReportCommentsWithBasicIndex", x => x.CommentId);
                     table.ForeignKey(
                         name: "FK_ReportCommentsWithBasicIndex_ReportsWithBasicIndex_ReportId",
                         column: x => x.ReportId,
                         principalTable: "ReportsWithBasicIndex",
-                        principalColumn: "Id",
+                        principalColumn: "ReportId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -106,19 +107,19 @@ namespace EFCorePerformance.Cmd.Migrations
                 name: "ReportCommentsWithBetterIndex",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    CommentId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ReportId = table.Column<int>(type: "int", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReportCommentsWithBetterIndex", x => x.Id);
+                    table.PrimaryKey("PK_ReportCommentsWithBetterIndex", x => x.CommentId);
                     table.ForeignKey(
                         name: "FK_ReportCommentsWithBetterIndex_ReportsWithBetterIndex_ReportId",
                         column: x => x.ReportId,
                         principalTable: "ReportsWithBetterIndex",
-                        principalColumn: "Id",
+                        principalColumn: "ReportId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -141,6 +142,13 @@ namespace EFCorePerformance.Cmd.Migrations
                 name: "IX_ReportsWithBetterIndex_ConfigId",
                 table: "ReportsWithBetterIndex",
                 column: "ConfigId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReportsWithBetterIndex_Name",
+                table: "ReportsWithBetterIndex",
+                column: "Name",
+                filter: "[IsArchived] = 0")
+                .Annotation("SqlServer:Include", new[] { "ReportId", "Status" });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

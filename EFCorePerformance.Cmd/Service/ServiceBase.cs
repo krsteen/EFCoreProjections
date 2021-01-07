@@ -6,7 +6,7 @@ namespace EFCorePerformance.Cmd.Service
     public class ServiceBase
     {
         protected string ConnectionString;
-        protected MyDbContext Db { get; private set; }
+        protected MyDbContext Db { get { return GetDb(); } }
 
         public ServiceBase()
         {
@@ -15,7 +15,13 @@ namespace EFCorePerformance.Cmd.Service
             var optionsBuilder = new DbContextOptionsBuilder<MyDbContext>();
             optionsBuilder.UseSqlServer(ConnectionString);
             optionsBuilder.EnableSensitiveDataLogging(true);
-            Db = new MyDbContextFactory().CreateDbContext(new string[0]);
-        }       
+        }
+
+        public MyDbContext GetDb()
+        {
+            var db = new MyDbContextFactory().CreateDbContext(new string[0]);
+            return db;
+            
+        }
     }
 }

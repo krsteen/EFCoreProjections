@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EFCorePerformance.Cmd.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20210105201931_firstindex")]
-    partial class firstindex
+    [Migration("20210106082854_first")]
+    partial class first
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,9 +21,9 @@ namespace EFCorePerformance.Cmd.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.1");
 
-            modelBuilder.Entity("EFCorePerformance.Cmd.Model.ReportCommentWithBasicIndex", b =>
+            modelBuilder.Entity("EFCorePerformance.Cmd.Model.EF.ReportCommentWithBasicIndex", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("CommentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .UseIdentityColumn();
@@ -34,16 +34,16 @@ namespace EFCorePerformance.Cmd.Migrations
                     b.Property<int>("ReportId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("CommentId");
 
                     b.HasIndex("ReportId");
 
                     b.ToTable("ReportCommentsWithBasicIndex");
                 });
 
-            modelBuilder.Entity("EFCorePerformance.Cmd.Model.ReportCommentWithBetterIndex", b =>
+            modelBuilder.Entity("EFCorePerformance.Cmd.Model.EF.ReportCommentWithBetterIndex", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("CommentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .UseIdentityColumn();
@@ -54,16 +54,16 @@ namespace EFCorePerformance.Cmd.Migrations
                     b.Property<int>("ReportId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("CommentId");
 
                     b.HasIndex("ReportId");
 
                     b.ToTable("ReportCommentsWithBetterIndex");
                 });
 
-            modelBuilder.Entity("EFCorePerformance.Cmd.Model.ReportConfigWithBasicIndex", b =>
+            modelBuilder.Entity("EFCorePerformance.Cmd.Model.EF.ReportConfigWithBasicIndex", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ConfigId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .UseIdentityColumn();
@@ -77,14 +77,14 @@ namespace EFCorePerformance.Cmd.Migrations
                     b.Property<string>("VeryUsefulInformation")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ConfigId");
 
                     b.ToTable("ReportConfigsWithBasicIndexes");
                 });
 
-            modelBuilder.Entity("EFCorePerformance.Cmd.Model.ReportConfigWithBetterIndex", b =>
+            modelBuilder.Entity("EFCorePerformance.Cmd.Model.EF.ReportConfigWithBetterIndex", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ConfigId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .UseIdentityColumn();
@@ -98,43 +98,14 @@ namespace EFCorePerformance.Cmd.Migrations
                     b.Property<string>("VeryUsefulInformation")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ConfigId");
 
                     b.ToTable("ReportConfigsWithBetterIndexes");
                 });
 
-            modelBuilder.Entity("EFCorePerformance.Cmd.Model.ReportWithBasicIndex", b =>
+            modelBuilder.Entity("EFCorePerformance.Cmd.Model.EF.ReportWithBasicIndex", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
-
-                    b.Property<int>("ConfigId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsArchived")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ConfigId");
-
-                    b.ToTable("ReportsWithBasicIndex");
-                });
-
-            modelBuilder.Entity("EFCorePerformance.Cmd.Model.ReportWithBetterIndex", b =>
-                {
-                    b.Property<int>("Id")
+                    b.Property<int>("ReportId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .UseIdentityColumn();
@@ -157,20 +128,52 @@ namespace EFCorePerformance.Cmd.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("nvarchar(32)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ReportId");
+
+                    b.HasIndex("ConfigId");
+
+                    b.ToTable("ReportsWithBasicIndex");
+                });
+
+            modelBuilder.Entity("EFCorePerformance.Cmd.Model.EF.ReportWithBetterIndex", b =>
+                {
+                    b.Property<int>("ReportId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<int>("ConfigId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.HasKey("ReportId");
 
                     b.HasIndex("ConfigId");
 
                     b.HasIndex("Name")
                         .HasFilter("[IsArchived] = 0")
-                        .IncludeProperties(new[] { "Id", "Status" });
+                        .IncludeProperties(new[] { "ReportId", "Status" });
 
                     b.ToTable("ReportsWithBetterIndex");
                 });
 
-            modelBuilder.Entity("EFCorePerformance.Cmd.Model.ReportCommentWithBasicIndex", b =>
+            modelBuilder.Entity("EFCorePerformance.Cmd.Model.EF.ReportCommentWithBasicIndex", b =>
                 {
-                    b.HasOne("EFCorePerformance.Cmd.Model.ReportWithBasicIndex", "Report")
+                    b.HasOne("EFCorePerformance.Cmd.Model.EF.ReportWithBasicIndex", "Report")
                         .WithMany("Comments")
                         .HasForeignKey("ReportId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -179,9 +182,9 @@ namespace EFCorePerformance.Cmd.Migrations
                     b.Navigation("Report");
                 });
 
-            modelBuilder.Entity("EFCorePerformance.Cmd.Model.ReportCommentWithBetterIndex", b =>
+            modelBuilder.Entity("EFCorePerformance.Cmd.Model.EF.ReportCommentWithBetterIndex", b =>
                 {
-                    b.HasOne("EFCorePerformance.Cmd.Model.ReportWithBetterIndex", "Report")
+                    b.HasOne("EFCorePerformance.Cmd.Model.EF.ReportWithBetterIndex", "Report")
                         .WithMany("Comments")
                         .HasForeignKey("ReportId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -190,9 +193,9 @@ namespace EFCorePerformance.Cmd.Migrations
                     b.Navigation("Report");
                 });
 
-            modelBuilder.Entity("EFCorePerformance.Cmd.Model.ReportWithBasicIndex", b =>
+            modelBuilder.Entity("EFCorePerformance.Cmd.Model.EF.ReportWithBasicIndex", b =>
                 {
-                    b.HasOne("EFCorePerformance.Cmd.Model.ReportConfigWithBasicIndex", "Config")
+                    b.HasOne("EFCorePerformance.Cmd.Model.EF.ReportConfigWithBasicIndex", "Config")
                         .WithMany("Reports")
                         .HasForeignKey("ConfigId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -201,9 +204,9 @@ namespace EFCorePerformance.Cmd.Migrations
                     b.Navigation("Config");
                 });
 
-            modelBuilder.Entity("EFCorePerformance.Cmd.Model.ReportWithBetterIndex", b =>
+            modelBuilder.Entity("EFCorePerformance.Cmd.Model.EF.ReportWithBetterIndex", b =>
                 {
-                    b.HasOne("EFCorePerformance.Cmd.Model.ReportConfigWithBetterIndex", "Config")
+                    b.HasOne("EFCorePerformance.Cmd.Model.EF.ReportConfigWithBetterIndex", "Config")
                         .WithMany("Reports")
                         .HasForeignKey("ConfigId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -212,22 +215,22 @@ namespace EFCorePerformance.Cmd.Migrations
                     b.Navigation("Config");
                 });
 
-            modelBuilder.Entity("EFCorePerformance.Cmd.Model.ReportConfigWithBasicIndex", b =>
+            modelBuilder.Entity("EFCorePerformance.Cmd.Model.EF.ReportConfigWithBasicIndex", b =>
                 {
                     b.Navigation("Reports");
                 });
 
-            modelBuilder.Entity("EFCorePerformance.Cmd.Model.ReportConfigWithBetterIndex", b =>
+            modelBuilder.Entity("EFCorePerformance.Cmd.Model.EF.ReportConfigWithBetterIndex", b =>
                 {
                     b.Navigation("Reports");
                 });
 
-            modelBuilder.Entity("EFCorePerformance.Cmd.Model.ReportWithBasicIndex", b =>
+            modelBuilder.Entity("EFCorePerformance.Cmd.Model.EF.ReportWithBasicIndex", b =>
                 {
                     b.Navigation("Comments");
                 });
 
-            modelBuilder.Entity("EFCorePerformance.Cmd.Model.ReportWithBetterIndex", b =>
+            modelBuilder.Entity("EFCorePerformance.Cmd.Model.EF.ReportWithBetterIndex", b =>
                 {
                     b.Navigation("Comments");
                 });

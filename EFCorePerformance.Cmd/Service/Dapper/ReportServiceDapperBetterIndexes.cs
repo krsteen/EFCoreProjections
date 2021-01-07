@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using EFCorePerformance.Cmd.Dto;
+using System.Threading.Tasks;
 
 namespace EFCorePerformance.Cmd.Service
 {
@@ -9,18 +10,18 @@ namespace EFCorePerformance.Cmd.Service
         {
         }
 
-        public async Task<string> GetAsJsonAsync(int id)
+        public async Task<ReportResponse> GetAsJsonAsync(int id)
         {
             return await base.GetAsJsonInternalAsync(id);        
         }
 
-        public async Task<string> GetDetailedListAsJsonAsync(string nameLike = null)
+        public async Task<ReportResponse> GetDetailedListAsJsonAsync(string nameLike = null)
         {
             return await base.GetDetailedListAsJsonInternalAsync(nameLike);
             
         }
 
-        public async Task<string> GetLightListAsJsonAsync(string nameLike = null)
+        public async Task<ReportResponse> GetLightListAsJsonAsync(string nameLike = null)
         {
             return await base.GetLightListAsJsonInternalAsync(nameLike);
         } 
