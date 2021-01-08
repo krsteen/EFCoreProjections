@@ -42,8 +42,6 @@ namespace EFCorePerformance.Cmd.Service
                 .If(anyIncludes, x => x.Include(r => r.Config))
                 .If(anyIncludes && useBadLazyLoad == false, r => r.Include(r => r.Comments));
 
-
-
             return reportQueryable.Where(r => r.IsArchived == false);
         }
 

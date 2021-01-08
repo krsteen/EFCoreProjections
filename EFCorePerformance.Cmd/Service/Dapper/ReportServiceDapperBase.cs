@@ -73,14 +73,20 @@ namespace EFCorePerformance.Cmd.Service
             {
                 var reportDictionary = new Dictionary<int, ReportDapper>();
 
-                var query = @"SELECT r.ReportId, r.Name, r.Description, r.IsArchived, r.Status,
-                            cnf.ConfigId, cnf.Name, cnf.Description, cnf.VeryUsefulInformation,
-                            cm.CommentId, cm.Comment
+                var query = @"WITH ctepaging AS (SELECT r.ReportId, r.Name as ReportName, r.Description as ReportDescription, r.IsArchived, r.Status,
+                            r.ConfigId
                             FROM [dbo].[ReportsWith" + PartOfTableName + "Index] r";
 
-                query = AddJoins(query);
                 query = nameLike == null ? AddArchivedWhere(query) : AddNameWhere(query);
                 query = AddPaging(query, Constants.DEFAULT_SKIP, Constants.DEFAULT_TAKE);
+
+                query += "), ctejoin as (";
+                query += " SELECT p.* ";
+                query += ", cnf.Name as ConfigName, cnf.Description as ConfigDescription, cnf.VeryUsefulInformation";
+                query += ", cm.CommentId, cm.Comment ";
+                query += " FROM ctepaging p";
+                query = AddJoins(query, "p");
+                query += ") SELECT * FROM ctejoin ";
 
                 var reports = await connection.QueryAsync<ReportDapper, ReportConfigDapper, ReportCommentDapper, ReportDapper>(query,
                      (report, config, comment) =>
@@ -127,9 +133,9 @@ namespace EFCorePerformance.Cmd.Service
             }
         }
 
-        string AddJoins(string baseQuery)
+        string AddJoins(string baseQuery, string aliasToJoinWith = "r")
         {
-            return baseQuery += " INNER JOIN [dbo].[ReportConfigsWith" + PartOfTableName + "Indexes] cnf ON r.ConfigId = cnf.ConfigId INNER JOIN [dbo].[ReportCommentsWith" + PartOfTableName + "Index] cm ON r.ReportId = cm.ReportId ";
+            return baseQuery += " INNER JOIN [dbo].[ReportConfigsWith" + PartOfTableName + $"Indexes] cnf ON {aliasToJoinWith}.ConfigId = cnf.ConfigId INNER JOIN [dbo].[ReportCommentsWith" + PartOfTableName + $"Index] cm ON {aliasToJoinWith}.ReportId = cm.ReportId ";
         }
 
         string AddPaging(string baseQuery, int skip, int take)

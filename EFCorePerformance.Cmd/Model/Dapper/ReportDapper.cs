@@ -10,5 +10,9 @@ namespace EFCorePerformance.Cmd.Model.Dapper
 
 
         public ReportConfigDapper Config { get; set; }
+
+        public string ReportName { get { return Name; } set { Name = value; } }
+
+        public string ReportDescription { get { return Description; } set { Description = value; } }
     }
 }

@@ -22,7 +22,7 @@ namespace EFCorePerformance.Cmd
 
             Directory.CreateDirectory(WorkingFolder);
 
-            await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: true, useNoTracking: false), 0, "EF Basic index Bad lazy load", 0, 3, 4);
+            await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: true, useNoTracking: false), 0, "EF Basic index Home made lazy load", 0, 3, 4);
 
             await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: false, useNoTracking: false), 1, "EF Basic index Include", 0, 1, 2, 3, 4);
 
@@ -36,12 +36,6 @@ namespace EFCorePerformance.Cmd
 
             await RunTestsOnService(new ReportServiceDapperBetterIndexes(), 6, "Dapper better index", 0, 1, 2, 3, 4);
 
-
-            //Able to cause client side validaiton?
-
-            //Same query without client side validation?       
-
-
             StatCsvWriter.Write(Stats, WorkingFolder);
 
             foreach (var curSummaryItem in Summaries)
@@ -50,28 +44,8 @@ namespace EFCorePerformance.Cmd
             }
         }
 
-        static async Task ResetDatabase()
-        {
-            var testDataService = new TestDataService();
-            await testDataService.ResetDatabaseAndPopulateWithTestData();
-
-            Lg("Summary");
-        }
-
-        static void AddToSummary(IReportService service, string method, string jsonResult, double elapsed)
-        {
-            var byteCount = Encoding.UTF8.GetByteCount(jsonResult);
-            Summaries.Add($"{service.GetType().Name}, {method}: elapsed {(int)elapsed}ms, size {byteCount} ");
-        }
-
-        static void AddToStats(int serviceIndex, int testIndex, string testName, string method, double elapsed, string jsonResult, int itemCount)
-        {
-            var byteCount = Encoding.UTF8.GetByteCount(jsonResult);
-            Stats.Add(new RunStats(serviceIndex, testIndex, testName, method, (int)elapsed, itemCount, byteCount));
-
-            File.WriteAllTextAsync($"{WorkingFolder}_{serviceIndex}_{testIndex}_{testName.Replace(", ", "")}_{method.Replace(" ", "")}.json", jsonResult);
-        }
-
+     
+     
         static async Task RunTestsOnService(IReportService service, int serviceIndex, string scenarioName, params int[] testsToRun)
         {
             var clearCacheService = new ClearDbCacheService();
@@ -145,6 +119,16 @@ namespace EFCorePerformance.Cmd
             LgService(service, $"Completed in {(int)elapsedTotal}");
         }
 
+        static async Task ResetDatabase()
+        {
+            throw new NotImplementedException("Hell no!");
+            var testDataService = new TestDataService();
+            await testDataService.ResetDatabaseAndPopulateWithTestData();
+
+            Lg("Summary");
+        }
+
+
         static void Lg(string message, bool skipVerticalSpace = false)
         {
             if (skipVerticalSpace == false)
@@ -170,5 +154,20 @@ namespace EFCorePerformance.Cmd
         {
             Lg($"{service.GetType().Name}: {messageSuffix}");
         }
+
+        static void AddToSummary(IReportService service, string method, string jsonResult, double elapsed)
+        {
+            var byteCount = Encoding.UTF8.GetByteCount(jsonResult);
+            Summaries.Add($"{service.GetType().Name}, {method}: elapsed {(int)elapsed}ms, size {byteCount} ");
+        }
+
+        static void AddToStats(int serviceIndex, int testIndex, string testName, string method, double elapsed, string jsonResult, int itemCount)
+        {
+            var byteCount = Encoding.UTF8.GetByteCount(jsonResult);
+            Stats.Add(new RunStats(serviceIndex, testIndex, testName, method, (int)elapsed, itemCount, byteCount));
+
+            File.WriteAllTextAsync($"{WorkingFolder}_{serviceIndex}_{testIndex}_{testName.Replace(", ", "")}_{method.Replace(" ", "")}.json", jsonResult);
+        }
+
     }
 }
