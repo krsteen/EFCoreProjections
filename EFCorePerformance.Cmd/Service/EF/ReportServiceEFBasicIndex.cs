@@ -21,12 +21,17 @@ namespace EFCorePerformance.Cmd.Service
 
         IQueryable<ReportWithBasicIndex> GetReportQueryable(bool anyIncludes)
         {
+            //DISABLE TRACKING
             if (useNoTracking)
             {
                 Db.ChangeTracker.QueryTrackingBehavior = useNoTracking ? QueryTrackingBehavior.NoTracking : QueryTrackingBehavior.TrackAll;
             }
 
-            //INSTEAD OF:
+            //Could also use Db.AsNoTracking()....
+
+
+
+            //COOL TRICK FROM EFORL, INSTEAD OF:
             //if (anyIncludes)
             //{
             //    reportQueryable = reportQueryable.Include(r => r.Config);
@@ -42,12 +47,16 @@ namespace EFCorePerformance.Cmd.Service
                 .If(anyIncludes, x => x.Include(r => r.Config))
                 .If(anyIncludes && useBadLazyLoad == false, r => r.Include(r => r.Comments));
 
+            //TO AVOID JOINS, ADD .AsSplitQuery()
+
             return reportQueryable.Where(r => r.IsArchived == false);
         }
 
         public async Task<ReportResponse> GetAsJsonAsync(int id)
         {
             var reportQueryable = GetReportQueryable(true);
+
+            //DONT PUT A .ToList, .FirstOrDefault()
 
             reportQueryable = reportQueryable.Where(r => r.ReportId == id);           
 

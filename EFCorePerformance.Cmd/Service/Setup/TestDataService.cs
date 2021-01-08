@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using System.Text;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace EFCorePerformance.Cmd.Service
 {
@@ -13,6 +15,11 @@ namespace EFCorePerformance.Cmd.Service
         public TestDataService()
             : base()
         {
+        }
+
+        public async Task<int> GetReportIdToSearchFor()
+        {
+            return (await Db.ReportsWithBasicIndex.Where(r => r.ReportId > 50000).FirstOrDefaultAsync()).ReportId;
         }
 
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EFCorePerformance.Cmd.Model
+﻿namespace EFCorePerformance.Cmd.Model
 {
     public class ReportConfig
     {

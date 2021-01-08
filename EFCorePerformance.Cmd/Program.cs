@@ -11,8 +11,9 @@ namespace EFCorePerformance.Cmd
 {
     class Program
     {
-        static List<string> Summaries = new List<string>();
-        static List<RunStats> Stats = new List<RunStats>();
+        static readonly List<string> Summaries = new List<string>();
+        static readonly List<RunStats> Stats = new List<RunStats>();
+        static readonly TestDataService TestDataService = new TestDataService();
 
         static string WorkingFolder = $"D:\\Workspace\\EFCorePerformance\\{DateTime.Now.ToFileTime()}\\";
 
@@ -48,20 +49,24 @@ namespace EFCorePerformance.Cmd
      
         static async Task RunTestsOnService(IReportService service, int serviceIndex, string scenarioName, params int[] testsToRun)
         {
+            var idOfActiveReport = await TestDataService.GetReportIdToSearchFor();
+
             var clearCacheService = new ClearDbCacheService();
 
             LgService(service, "Starting");
 
-            double elapsedTotal = 0;
-            var spElapsed = Stopwatch.StartNew();
+            var spElapsed = new Stopwatch();
+
+            double elapsedTotal = 0;           
 
             var testsToRunHs = new HashSet<int>(testsToRun);
 
             if (testsToRunHs.Contains(0))
             {
                 await clearCacheService.ClearCache();
-          
-                var reportResponse = await service.GetAsJsonAsync(1121);
+
+                spElapsed.Restart();
+                var reportResponse = await service.GetAsJsonAsync(idOfActiveReport);
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
                 AddToSummary(service, "by id", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
@@ -77,7 +82,7 @@ namespace EFCorePerformance.Cmd
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
                 AddToSummary(service, "light list", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 1, scenarioName, "light list", spElapsed.Elapsed.TotalMilliseconds, reportResponse.ResultAsJson, reportResponse.ItemCount);
+                AddToStats(serviceIndex, 1, scenarioName, "light list, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds, reportResponse.ResultAsJson, reportResponse.ItemCount);
             }
 
             if (testsToRunHs.Contains(2))
@@ -89,7 +94,7 @@ namespace EFCorePerformance.Cmd
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
                 AddToSummary(service, "light list with search", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 2, scenarioName, "light list with search", spElapsed.Elapsed.TotalMilliseconds, reportResponse.ResultAsJson, reportResponse.ItemCount);
+                AddToStats(serviceIndex, 2, scenarioName, "light list with search, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds, reportResponse.ResultAsJson, reportResponse.ItemCount);
             }
 
             if (testsToRunHs.Contains(3))
@@ -101,7 +106,7 @@ namespace EFCorePerformance.Cmd
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
                 AddToSummary(service, "detailed list", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 3, scenarioName, "detailed list", spElapsed.Elapsed.TotalMilliseconds, reportResponse.ResultAsJson, reportResponse.ItemCount);
+                AddToStats(serviceIndex, 3, scenarioName, "detailed list, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds, reportResponse.ResultAsJson, reportResponse.ItemCount);
             }
 
             if (testsToRunHs.Contains(4))
@@ -113,7 +118,7 @@ namespace EFCorePerformance.Cmd
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
                 AddToSummary(service, "detailed list with search", reportListJson.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 4, scenarioName, "detailed list with search", spElapsed.Elapsed.TotalMilliseconds, reportListJson.ResultAsJson, reportListJson.ItemCount);
+                AddToStats(serviceIndex, 4, scenarioName, "detailed list with search, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds, reportListJson.ResultAsJson, reportListJson.ItemCount);
             }
 
             LgService(service, $"Completed in {(int)elapsedTotal}");
@@ -122,8 +127,8 @@ namespace EFCorePerformance.Cmd
         static async Task ResetDatabase()
         {
             throw new NotImplementedException("Hell no!");
-            var testDataService = new TestDataService();
-            await testDataService.ResetDatabaseAndPopulateWithTestData();
+           
+            await TestDataService.ResetDatabaseAndPopulateWithTestData();
 
             Lg("Summary");
         }
