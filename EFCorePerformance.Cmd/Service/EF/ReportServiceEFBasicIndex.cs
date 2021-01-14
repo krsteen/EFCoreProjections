@@ -52,7 +52,7 @@ namespace EFCorePerformance.Cmd.Service
             return reportQueryable.Where(r => r.IsArchived == false);
         }
 
-        public async Task<ReportResponse> GetAsJsonAsync(int id)
+        public async Task<ReportResponse> GetReportByIdAsync(int id)
         {
             var reportQueryable = GetReportQueryable(true);
 
@@ -85,7 +85,7 @@ namespace EFCorePerformance.Cmd.Service
             report.Comments = await Db.ReportCommentsWithBasicIndex.Where(rc => rc.ReportId == report.ReportId).ToListAsync();
         }
 
-        public async Task<ReportResponse> GetLightListAsJsonAsync(string nameLike = null)
+        public async Task<ReportResponse> GetLightReportListAsync(string nameLike = null)
         {
             var reportsQueryable = GetReportQueryable(false)
                .If(nameLike != null, c => c.Where(r => r.Name == nameLike))
@@ -102,7 +102,7 @@ namespace EFCorePerformance.Cmd.Service
             return result;
         }
 
-        public async Task<ReportResponse> GetDetailedListAsJsonAsync(string nameLike = null)
+        public async Task<ReportResponse> GetDetailedReportListAsync(string nameLike = null)
         {
 
             var reportsQueryable = GetReportQueryable(true);

@@ -23,19 +23,23 @@ namespace EFCorePerformance.Cmd
 
             Directory.CreateDirectory(WorkingFolder);
 
-            await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: true, useNoTracking: false), 0, "EF Basic index Home made lazy load", 0, 3, 4);
+            //await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: true, useNoTracking: false), 0, "EF Basic index Home made lazy load", 0, 3, 4);
 
-            await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: false, useNoTracking: false), 1, "EF Basic index Include", 0, 1, 2, 3, 4);
+            //await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: false, useNoTracking: false), 1, "EF Basic index Include", 0, 1, 2, 3, 4);
 
-            await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: false, useNoTracking: true), 2, "EF Basic index Include AsNoTracking", 0, 1, 2, 3, 4);
+            //await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: false, useNoTracking: true), 2, "EF Basic index Include AsNoTracking", 0, 1, 2, 3, 4);
 
-            await RunTestsOnService(new ReportServiceEFBetterIndex(useBadLazyLoad: false, useNoTracking: true), 3, "EF Better index Include AsNoTracking", 0, 1, 2, 3, 4);
+            await RunTestsOnService(new ReportServiceEFBetterIndex(useBadLazyLoad: false, useNoTracking: true), 0, "EF Better index Include AsNoTracking", 0);
 
-            await RunTestsOnService(new ReportServiceEFBetterIndexProjection(), 4, "EF Better index Include AsNoTracking Projection", 1, 2);
+            await RunTestsOnService(new ReportServiceEFBetterIndexProjection(), 1, "EF Better index Include AsNoTracking Projection", 0, 1, 2);
 
-            await RunTestsOnService(new ReportServiceDapperBasicIndexes(), 5, "Dapper basic index", 0, 1, 2, 3, 4);
+            await RunTestsOnService(new ReportServiceDapperBasicIndexes(), 2, "Dapper basic index", 0, 1, 2);
 
-            await RunTestsOnService(new ReportServiceDapperBetterIndexes(), 6, "Dapper better index", 0, 1, 2, 3, 4);
+            await RunTestsOnService(new ReportServiceDapperBetterIndexes(), 3, "Dapper better index", 0, 1, 2);
+
+            await RunTestsOnService(new ReportServiceEfRawBetterIndexes(), 4, "EF Core RAW SQL better index", 0, 1, 2);
+
+            await RunTestsOnService(new ReportServiceEfRawKeylessTypeBetterIndexes(), 5, "EF Core RAW SQL Keyless Type better index", 1, 2);
 
             StatCsvWriter.Write(Stats, WorkingFolder);
 
@@ -45,8 +49,8 @@ namespace EFCorePerformance.Cmd
             }
         }
 
-     
-     
+
+
         static async Task RunTestsOnService(IReportService service, int serviceIndex, string scenarioName, params int[] testsToRun)
         {
             var idOfActiveReport = await TestDataService.GetReportIdToSearchFor();
@@ -57,7 +61,7 @@ namespace EFCorePerformance.Cmd
 
             var spElapsed = new Stopwatch();
 
-            double elapsedTotal = 0;           
+            double elapsedTotal = 0;
 
             var testsToRunHs = new HashSet<int>(testsToRun);
 
@@ -66,7 +70,7 @@ namespace EFCorePerformance.Cmd
                 await clearCacheService.ClearCache();
 
                 spElapsed.Restart();
-                var reportResponse = await service.GetAsJsonAsync(idOfActiveReport);
+                var reportResponse = await service.GetReportByIdAsync(idOfActiveReport);
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
                 AddToSummary(service, "by id", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
@@ -76,9 +80,9 @@ namespace EFCorePerformance.Cmd
             if (testsToRunHs.Contains(1))
             {
                 await clearCacheService.ClearCache();
-               
+
                 spElapsed.Restart();
-                var reportResponse = await service.GetLightListAsJsonAsync();
+                var reportResponse = await service.GetLightReportListAsync();
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
                 AddToSummary(service, "light list", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
@@ -88,9 +92,9 @@ namespace EFCorePerformance.Cmd
             if (testsToRunHs.Contains(2))
             {
                 await clearCacheService.ClearCache();
-              
+
                 spElapsed.Restart();
-                var reportResponse = await service.GetLightListAsJsonAsync(Constants.REPORT_NAME_SEARCH);
+                    var reportResponse = await service.GetLightReportListAsync(Constants.REPORT_NAME_SEARCH);
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
                 AddToSummary(service, "light list with search", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
@@ -100,9 +104,9 @@ namespace EFCorePerformance.Cmd
             if (testsToRunHs.Contains(3))
             {
                 await clearCacheService.ClearCache();
-               
+
                 spElapsed.Restart();
-                var reportResponse = await service.GetDetailedListAsJsonAsync();
+                var reportResponse = await service.GetDetailedReportListAsync();
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
                 AddToSummary(service, "detailed list", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
@@ -112,9 +116,9 @@ namespace EFCorePerformance.Cmd
             if (testsToRunHs.Contains(4))
             {
                 await clearCacheService.ClearCache();
-           
+
                 spElapsed.Restart();
-                var reportListJson = await service.GetDetailedListAsJsonAsync(Constants.REPORT_NAME_SEARCH);
+                var reportListJson = await service.GetDetailedReportListAsync(Constants.REPORT_NAME_SEARCH);
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
                 AddToSummary(service, "detailed list with search", reportListJson.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
@@ -127,7 +131,7 @@ namespace EFCorePerformance.Cmd
         static async Task ResetDatabase()
         {
             throw new NotImplementedException("Hell no!");
-           
+
             await TestDataService.ResetDatabaseAndPopulateWithTestData();
 
             Lg("Summary");

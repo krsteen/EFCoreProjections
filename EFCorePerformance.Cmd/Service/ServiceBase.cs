@@ -20,8 +20,12 @@ namespace EFCorePerformance.Cmd.Service
         public MyDbContext GetDb()
         {
             var db = new MyDbContextFactory().CreateDbContext(new string[0]);
-            return db;
-            
+            return db;            
+        }
+
+        protected string QueryTag(string testName)
+        {
+            return $"{this.GetType().Name} - {testName}";
         }
     }
 }

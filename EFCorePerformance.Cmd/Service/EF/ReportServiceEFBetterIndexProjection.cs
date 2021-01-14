@@ -15,9 +15,10 @@ namespace EFCorePerformance.Cmd.Service
             
         }      
 
-        public new async Task<ReportResponse> GetLightListAsJsonAsync(string nameLike = null)
+        public new async Task<ReportResponse> GetLightReportListAsync(string nameLike = null)
         {
             var reportsQueryable = GetReportQueryable(false)
+                 .TagWith(QueryTag("Report list light"))
                    .If(nameLike != null, c => c.Where(r => r.Name == nameLike))
               .OrderBy(r => r.ReportId)
               .Skip(Constants.DEFAULT_SKIP)

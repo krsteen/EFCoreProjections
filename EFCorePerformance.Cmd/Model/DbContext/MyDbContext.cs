@@ -23,6 +23,7 @@ namespace EFCorePerformance.Cmd.Model
 
         public virtual DbSet<ReportConfigWithBetterIndex> ReportConfigsWithBetterIndexes { get; set; }
 
+        public DbSet<ReportLightWithBetterIndex> ReportsLigthBetterIndex { get; set; }
 
         //WITH INDEXING
 
@@ -78,6 +79,13 @@ namespace EFCorePerformance.Cmd.Model
                 p.Status
             })
             .HasFilter("[IsArchived] = 0");
+
+            //Keyless type for report table
+            modelBuilder.Entity<ReportLightWithBetterIndex>(eb =>
+            {
+            eb.HasNoKey();
+            eb.ToTable("[dbo].[ReportsWithBetterIndex]");
+            });
 
         }
 

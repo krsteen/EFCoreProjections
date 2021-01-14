@@ -10,19 +10,19 @@ namespace EFCorePerformance.Cmd.Service
         {
         }
 
-        public async Task<ReportResponse> GetAsJsonAsync(int id)
+        public async Task<ReportResponse> GetReportByIdAsync(int id)
         {
-            return await base.GetAsJsonInternalAsync(id);        
+            return await base.GetReportByIdInternalAsync(id);        
         }
 
-        public async Task<ReportResponse> GetDetailedListAsJsonAsync(string nameLike = null)
+        public async Task<ReportResponse> GetDetailedReportListAsync(string nameLike = null)
         {
-            return await base.GetDetailedListAsJsonInternalAsync(nameLike);            
+            return await base.GetDetailedReportListInternalAsync(nameLike);            
         }
 
-        public async Task<ReportResponse> GetLightListAsJsonAsync(string nameLike = null)
+        public async Task<ReportResponse> GetLightReportListAsync(string nameLike = null)
         {
-            return await base.GetLightListAsJsonInternalAsync(nameLike);
+            return await base.GetLightReportListInternalAsync(nameLike);
         } 
     }
 }

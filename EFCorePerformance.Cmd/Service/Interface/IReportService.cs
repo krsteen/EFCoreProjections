@@ -5,8 +5,8 @@ namespace EFCorePerformance.Cmd.Service
 {
     public interface IReportService
     {  
-        Task<ReportResponse> GetAsJsonAsync(int id);
-        Task<ReportResponse> GetDetailedListAsJsonAsync(string nameLike = null);
-        Task<ReportResponse> GetLightListAsJsonAsync(string nameLike = null);
+        Task<ReportResponse> GetReportByIdAsync(int id);
+        Task<ReportResponse> GetDetailedReportListAsync(string nameFilter = null);
+        Task<ReportResponse> GetLightReportListAsync(string nameFilter = null);
     }
 }
