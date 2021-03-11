@@ -1,4 +1,6 @@
-﻿using EFCorePerformance.Cmd.Model;
+﻿using AutoMapper;
+using EFCorePerformance.Cmd.Dto;
+using EFCorePerformance.Cmd.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace EFCorePerformance.Cmd.Service
@@ -8,6 +10,10 @@ namespace EFCorePerformance.Cmd.Service
         protected string ConnectionString;
         protected MyDbContext Db { get { return GetDb(); } }
 
+        protected MapperConfiguration MapperConfiguration;
+        protected Mapper Mapper;
+
+
         public ServiceBase()
         {
             ConnectionString = ConfigUtil.GetDbConnectionString();
@@ -15,6 +21,12 @@ namespace EFCorePerformance.Cmd.Service
             var optionsBuilder = new DbContextOptionsBuilder<MyDbContext>();
             optionsBuilder.UseSqlServer(ConnectionString);
             optionsBuilder.EnableSensitiveDataLogging(true);
+
+            MapperConfiguration = new MapperConfiguration(cfg => {
+                cfg.AddProfile<AutomapperConfigs>();              
+            });
+
+            Mapper = new Mapper(MapperConfiguration);
         }
 
         public MyDbContext GetDb()

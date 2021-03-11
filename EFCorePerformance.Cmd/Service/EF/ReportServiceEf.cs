@@ -2,6 +2,7 @@
 using EFCorePerformance.Cmd.Dto;
 using EFCorePerformance.Cmd.Model;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -42,7 +43,7 @@ namespace EFCorePerformance.Cmd.Service
 
             if (report != null)
             {
-                var reportDto = new ReportDto(report);
+                var reportDto = Mapper.Map<ReportDto>(report);
                 var result = new ReportResponse(1, Serialize(reportDto));
 
                 return result;
@@ -53,7 +54,7 @@ namespace EFCorePerformance.Cmd.Service
 
         public async Task<ReportResponse> GetLightReportListAsync(string nameLike = null)
         {
-            var reportsQueryable = GetReportQueryable(false)
+            var reportsQueryable = GetReportQueryable()
                    .If(nameLike != null, c => c.Where(r => r.Name == nameLike))
                    .TagWith(QueryTag("Report list light"))
               .OrderBy(r => r.ReportId)
@@ -62,7 +63,7 @@ namespace EFCorePerformance.Cmd.Service
 
             var reports = await reportsQueryable.ToListAsync();
 
-            var reportsDto = reports.Select(r => new ReportListItemDto(r.ReportId, r.Name, r.Status)).ToList();
+            var reportsDto = Mapper.Map<List<ReportListItemDto>>(reports);
 
             var result = new ReportResponse(reportsDto.Count, Serialize(reportsDto));
 
@@ -71,7 +72,7 @@ namespace EFCorePerformance.Cmd.Service
 
         public async Task<ReportResponse> GetDetailedReportListAsync(string nameLike = null)
         {
-            var reportsQueryable = GetReportQueryable(true);
+            var reportsQueryable = GetReportQueryable();
 
             reportsQueryable = reportsQueryable
                  .If(nameLike != null, c => c.Where(r => r.Name == nameLike))
@@ -82,9 +83,9 @@ namespace EFCorePerformance.Cmd.Service
 
             var reports = await reportsQueryable.ToListAsync();
 
-            var reportDtos = reports.Select(r => new ReportDto(r)).ToList();
+            var reportDtos = Mapper.Map<List<ReportDto>>(reports);
 
-            var result = new ReportResponse(reportDtos.Count, Serialize(reportDtos));
+            var result = new ReportResponse(reportDtos.Count(), Serialize(reportDtos));
 
             return result;
         }
