@@ -1,4 +1,5 @@
-﻿using EFCorePerformance.Cmd.Model.Dapper;
+﻿using EFCorePerformance.Cmd.Model;
+using EFCorePerformance.Cmd.Model.Dapper;
 using EFCorePerformance.Cmd.Model.EF;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ namespace EFCorePerformance.Cmd.Dto
 {
     public class ReportDto
     {
-        public ReportDto(ReportWithBasicIndex report)
+        public ReportDto(Report report)
         {
             ReportId = report.ReportId;
             Name = report.Name;

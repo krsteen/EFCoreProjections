@@ -1,6 +1,6 @@
 ﻿using EFCorePerformance.Cmd.DapperModel;
 using EFCorePerformance.Cmd.Dto;
-using EFCorePerformance.Cmd.Model.EF;
+using EFCorePerformance.Cmd.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,37 +9,35 @@ namespace EFCorePerformance.Cmd.Service
 {
     public class ReportServiceEf : ReportServiceBase, IReportService
     {
-        protected readonly bool useBadLazyLoad;
         protected readonly bool useNoTracking;
 
-        public ReportServiceEf(bool useBadLazyLoad, bool useNoTracking)
+        public ReportServiceEf(bool useNoTracking)
             : base()
         {
-            this.useBadLazyLoad = useBadLazyLoad;
             this.useNoTracking = useNoTracking;
         }
 
-        protected IQueryable<ReportWithBetterIndex> GetReportQueryable(bool anyIncludes)
+        protected IQueryable<Report> GetReportQueryable()
         {
             if (useNoTracking)
             {
                 Db.ChangeTracker.QueryTrackingBehavior = useNoTracking ? QueryTrackingBehavior.NoTracking : QueryTrackingBehavior.TrackAll;
             }
 
-            var reportQueryable = Db.ReportsWithBetterIndex
-               
-                          .If(anyIncludes, x => x.Include(r => r.Config))
-                          .If(anyIncludes && useBadLazyLoad == false, r => r.Include(r => r.Comments));
+            var reportQueryable = Db.Reports
+                        .Include(r => r.Config)
+                        .Include(r => r.Comments);
 
             return reportQueryable.Where(r => r.IsArchived == false);
         }
 
         public async Task<ReportResponse> GetReportByIdAsync(int id)
         {
-            var reportQueryable = GetReportQueryable(true);
+            var reportQueryable = GetReportQueryable();
 
             reportQueryable = reportQueryable.Where(r => r.ReportId == id);
             reportQueryable = reportQueryable.TagWith(QueryTag("Report by Id"));
+
             var report = await reportQueryable.SingleOrDefaultAsync();
 
             if (report != null)
