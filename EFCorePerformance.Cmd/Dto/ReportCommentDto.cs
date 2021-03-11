@@ -12,7 +12,7 @@ namespace EFCorePerformance.Cmd.Dto
             Comment = comment.Comment;
         }
 
-        public ReportCommentDto(ReportCommentWithBetterIndex comment)
+        public ReportCommentDto(ReportComment comment)
         {
             CommentId = comment.CommentId;
             ReportId = comment.ReportId;

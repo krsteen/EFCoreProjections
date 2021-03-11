@@ -1,6 +1,6 @@
-﻿namespace EFCorePerformance.Cmd.Model.Dapper
+﻿namespace EFCorePerformance.Cmd.Model
 {
-    public class ReportListItemDapper
+    public class ReportLight
     {
         public int ReportId { get; set; }
 

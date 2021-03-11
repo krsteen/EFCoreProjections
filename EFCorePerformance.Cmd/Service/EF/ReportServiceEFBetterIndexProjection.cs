@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EFCorePerformance.Cmd.Service
 {
-    public class ReportServiceEFBetterIndexProjection : ReportServiceEFBetterIndex, IReportService
+    public class ReportServiceEFBetterIndexProjection : ReportServiceEf, IReportService
     {    
 
         public ReportServiceEFBetterIndexProjection()

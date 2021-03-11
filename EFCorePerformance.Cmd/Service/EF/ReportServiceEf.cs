@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace EFCorePerformance.Cmd.Service
 {
-    public class ReportServiceEFBetterIndex : ReportServiceBase, IReportService
+    public class ReportServiceEf : ReportServiceBase, IReportService
     {
         protected readonly bool useBadLazyLoad;
         protected readonly bool useNoTracking;
 
-        public ReportServiceEFBetterIndex(bool useBadLazyLoad, bool useNoTracking)
+        public ReportServiceEf(bool useBadLazyLoad, bool useNoTracking)
             : base()
         {
             this.useBadLazyLoad = useBadLazyLoad;

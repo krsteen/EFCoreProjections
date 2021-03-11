@@ -13,7 +13,7 @@ namespace EFCorePerformance.Cmd.Dto
             VeryUsefulInformation = config.VeryUsefulInformation;
         }
 
-        public ReportConfigDto(ReportConfigWithBetterIndex config)
+        public ReportConfigDto(ReportConfig config)
         {
             ConfigId = config.ConfigId;
             Name = config.Name;

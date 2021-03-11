@@ -15,7 +15,7 @@ namespace EFCorePerformance.Cmd
         static readonly List<RunStats> Stats = new List<RunStats>();
         static readonly TestDataService TestDataService = new TestDataService();
 
-        static string WorkingFolder = $"D:\\Workspace\\EFCorePerformance\\{DateTime.Now.ToFileTime()}\\";
+        static string WorkingFolder = $"D:\\Workspace\\EFCorePerformancev2\\{DateTime.Now.ToFileTime()}\\";
 
         static async Task Main(string[] args)
         {
@@ -29,17 +29,14 @@ namespace EFCorePerformance.Cmd
 
             //await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: false, useNoTracking: true), 2, "EF Basic index Include AsNoTracking", 0, 1, 2, 3, 4);
 
-            await RunTestsOnService(new ReportServiceEFBetterIndex(useBadLazyLoad: false, useNoTracking: true), 0, "EF Better index Include AsNoTracking", 0);
+            await RunTestsOnService(new ReportServiceEf(useBadLazyLoad: false, useNoTracking: true), 0, "EF Better index Include AsNoTracking", 0);
 
             await RunTestsOnService(new ReportServiceEFBetterIndexProjection(), 1, "EF Better index Include AsNoTracking Projection", 0, 1, 2);
 
-            await RunTestsOnService(new ReportServiceDapperBasicIndexes(), 2, "Dapper basic index", 0, 1, 2);
+          
 
-            await RunTestsOnService(new ReportServiceDapperBetterIndexes(), 3, "Dapper better index", 0, 1, 2);
-
-            await RunTestsOnService(new ReportServiceEfRawBetterIndexes(), 4, "EF Core RAW SQL better index", 0, 1, 2);
-
-            await RunTestsOnService(new ReportServiceEfRawKeylessTypeBetterIndexes(), 5, "EF Core RAW SQL Keyless Type better index", 1, 2);
+            await RunTestsOnService(new ReportServiceDapperBetterIndexes(), 3, "Dapper better index", 0, 1, 2);           
+           
 
             StatCsvWriter.Write(Stats, WorkingFolder);
 

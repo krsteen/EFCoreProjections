@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace EFCorePerformance.Cmd.Model
 {
@@ -18,5 +19,9 @@ namespace EFCorePerformance.Cmd.Model
         public string Status { get; set; }
 
         public int ConfigId { get; set; }
+
+        public List<ReportComment> Comments { get; set; }
+      
+        public ReportConfig Config { get; set; }
     }
 }

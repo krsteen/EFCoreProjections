@@ -1,5 +1,4 @@
-﻿using EFCorePerformance.Cmd.Model.EF;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace EFCorePerformance.Cmd.Model
 {
@@ -7,87 +6,53 @@ namespace EFCorePerformance.Cmd.Model
 
     public class MyDbContext : DbContext
     {
-        public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
+        public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }  
 
-        //MODELS WITH ONLY BASIC INDEXES
-        public virtual DbSet<ReportWithBasicIndex> ReportsWithBasicIndex { get; set; }
+     
+        public virtual DbSet<Report> Reports { get; set; }
 
-        public virtual DbSet<ReportCommentWithBasicIndex> ReportCommentsWithBasicIndex { get; set; }
+        public virtual DbSet<ReportComment> ReportComments { get; set; }
 
-        public virtual DbSet<ReportConfigWithBasicIndex> ReportConfigsWithBasicIndexes { get; set; }
-
-        //MODELS WITH BETTER INDEXES
-        public virtual DbSet<ReportWithBetterIndex> ReportsWithBetterIndex { get; set; }
-
-        public virtual DbSet<ReportCommentWithBetterIndex> ReportCommentsWithBetterIndex { get; set; }
-
-        public virtual DbSet<ReportConfigWithBetterIndex> ReportConfigsWithBetterIndexes { get; set; }
-
-        public DbSet<ReportLightWithBetterIndex> ReportsLigthBetterIndex { get; set; }
-
-        //WITH INDEXING
+        public virtual DbSet<ReportConfig> ReportConfigs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            SetupReportsWithBasicIndexes(modelBuilder);
-            SetupReportsWithBetterIndexes(modelBuilder);
-        }
-
-        void SetupReportsWithBasicIndexes(ModelBuilder modelBuilder)
-        {
             //Primary keys
-            modelBuilder.Entity<ReportWithBasicIndex>().HasKey(v => v.ReportId);
-            modelBuilder.Entity<ReportCommentWithBasicIndex>().HasKey(v => v.CommentId);
-            modelBuilder.Entity<ReportConfigWithBasicIndex>().HasKey(v => v.ConfigId);
+            modelBuilder.Entity<Report>().HasKey(v => v.ReportId);
+            modelBuilder.Entity<ReportComment>().HasKey((System.Linq.Expressions.Expression<System.Func<ReportComment, object>>)(v => (object)v.CommentId));
+            modelBuilder.Entity<ReportConfig>().HasKey(v => v.ConfigId);
 
             //Relationships
-            modelBuilder.Entity<ReportCommentWithBasicIndex>()
-              .HasOne(d => d.Report)
+            modelBuilder.Entity<ReportComment>()
+              .HasOne(rc => rc.Report)
               .WithMany(r => r.Comments)
-              .HasForeignKey(d => d.ReportId);
+              .HasForeignKey(rc=> rc.ReportId);
 
-            modelBuilder.Entity<ReportWithBasicIndex>()
-            .HasOne(r => r.Config)
-            .WithMany(c => c.Reports)
-            .HasForeignKey(r => r.ConfigId);
-        }
-
-        void SetupReportsWithBetterIndexes(ModelBuilder modelBuilder)
-        {
-            //Primary keys
-            modelBuilder.Entity<ReportWithBetterIndex>().HasKey(v => v.ReportId);
-            modelBuilder.Entity<ReportCommentWithBetterIndex>().HasKey(v => v.CommentId);
-            modelBuilder.Entity<ReportConfigWithBetterIndex>().HasKey(v => v.ConfigId);
-
-            //Relationships
-            modelBuilder.Entity<ReportCommentWithBetterIndex>()
-              .HasOne(d => d.Report)
-              .WithMany(r => r.Comments)
-              .HasForeignKey(d => d.ReportId);
-
-            modelBuilder.Entity<ReportWithBetterIndex>()
+            modelBuilder.Entity<Report>()
             .HasOne(r => r.Config)
             .WithMany(c => c.Reports)
             .HasForeignKey(r => r.ConfigId);
 
-            //Add indexes
-            modelBuilder.Entity<ReportWithBetterIndex>()
-            .HasIndex(p => p.Name)
-            .IncludeProperties(p => new
+            //Indexs
+            modelBuilder.Entity<Report>()
+            .HasIndex(r => r.Name)
+            .IncludeProperties(r => new
             {
-                p.ReportId,
-                p.Status
+                r.ReportId,
+                r.Status
             })
             .HasFilter("[IsArchived] = 0");
 
-            //Keyless type for report table
-            modelBuilder.Entity<ReportLightWithBetterIndex>(eb =>
-            {
-            eb.HasNoKey();
-            eb.ToTable("[dbo].[ReportsWithBetterIndex]");
-            });
-
+            ////Keyless type for report table
+            //modelBuilder.Entity<ReportLightWithBetterIndex>(eb =>
+            //{
+            //    eb.HasNoKey();
+            //    eb.ToTable("[dbo].[ReportsWithBetterIndex]");
+            //});
         }
+      
+
+      
 
     }
 }
