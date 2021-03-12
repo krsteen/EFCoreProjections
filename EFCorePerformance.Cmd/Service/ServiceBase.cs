@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
-using EFCorePerformance.Cmd.Dto;
 using EFCorePerformance.Cmd.Model;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace EFCorePerformance.Cmd.Service
 {
     public class ServiceBase
     {
         protected string ConnectionString;
-        protected MyDbContext Db { get { return GetDb(); } }
+        protected MyDbContext Db { get { return GetDatabaseContext(); } }
 
         protected MapperConfiguration MapperConfiguration;
         protected Mapper Mapper;
@@ -29,15 +29,24 @@ namespace EFCorePerformance.Cmd.Service
             Mapper = new Mapper(MapperConfiguration);
         }
 
-        public MyDbContext GetDb()
+        public MyDbContext GetDatabaseContext()
         {
-            var db = new MyDbContextFactory().CreateDbContext(new string[0]);
-            return db;            
+            return new MyDbContextFactory().CreateDbContext(new string[0]);                   
         }
 
         protected string QueryTag(string testName)
         {
             return $"{this.GetType().Name} - {testName}";
+        }
+
+        protected string Serialize(object whatToSerialize)
+        {
+
+            return JsonConvert.SerializeObject(whatToSerialize, Formatting.None,
+                         new JsonSerializerSettings()
+                         {
+                             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                         });
         }
     }
 }

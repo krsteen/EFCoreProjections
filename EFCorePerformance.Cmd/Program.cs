@@ -31,7 +31,7 @@ namespace EFCorePerformance.Cmd
 
             await RunTestsOnService(new ReportServiceEf(useBadLazyLoad: false, useNoTracking: true), 0, "EF Better index Include AsNoTracking", 0);
 
-            await RunTestsOnService(new ReportServiceEFBetterIndexProjection(), 1, "EF Better index Include AsNoTracking Projection", 0, 1, 2);
+            await RunTestsOnService(new EfWithProjectionReportService(), 1, "EF Better index Include AsNoTracking Projection", 0, 1, 2);
 
           
 

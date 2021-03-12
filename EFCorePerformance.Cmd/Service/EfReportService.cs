@@ -8,29 +8,15 @@ using System.Threading.Tasks;
 
 namespace EFCorePerformance.Cmd.Service
 {
-    public class ReportServiceEf : ReportServiceBase, IReportService
+    public class EfReportService : ServiceBase, IReportService
     {
         protected readonly bool useNoTracking;
 
-        public ReportServiceEf(bool useNoTracking)
+        public EfReportService(bool useNoTracking)
             : base()
         {
             this.useNoTracking = useNoTracking;
-        }
-
-        protected IQueryable<Report> GetReportQueryable()
-        {
-            if (useNoTracking)
-            {
-                Db.ChangeTracker.QueryTrackingBehavior = useNoTracking ? QueryTrackingBehavior.NoTracking : QueryTrackingBehavior.TrackAll;
-            }
-
-            var reportQueryable = Db.Reports
-                        .Include(r => r.Config)
-                        .Include(r => r.Comments);
-
-            return reportQueryable.Where(r => r.IsArchived == false);
-        }
+        }     
 
         public async Task<ReportResponse> GetReportByIdAsync(int id)
         {
@@ -52,6 +38,26 @@ namespace EFCorePerformance.Cmd.Service
             return new ReportResponse(0, "");
         }
 
+        public async Task<ReportResponse> GetDetailedReportListAsync(string nameLike = null)
+        {
+            var reportsQueryable = GetReportQueryable(false);
+
+            reportsQueryable = reportsQueryable
+                 .If(nameLike != null, c => c.Where(r => r.Name == nameLike))
+                 .TagWith(QueryTag("Detailed list light"))
+            .OrderBy(r => r.ReportId)
+            .Skip(Constants.DEFAULT_SKIP)
+            .Take(Constants.DEFAULT_TAKE);
+
+            var reports = await reportsQueryable.ToListAsync();
+
+            var reportDtos = Mapper.Map<List<ReportDto>>(reports);
+
+            var result = new ReportResponse(reportDtos.Count(), Serialize(reportDtos));
+
+            return result;
+        }
+
         public async Task<ReportResponse> GetLightReportListAsync(string nameLike = null)
         {
             var reportsQueryable = GetReportQueryable()
@@ -70,24 +76,20 @@ namespace EFCorePerformance.Cmd.Service
             return result;
         }
 
-        public async Task<ReportResponse> GetDetailedReportListAsync(string nameLike = null)
+      
+
+        protected IQueryable<Report> GetReportQueryable(bool withIncludes = true)
         {
-            var reportsQueryable = GetReportQueryable();
+            if (useNoTracking)
+            {
+                Db.ChangeTracker.QueryTrackingBehavior = useNoTracking ? QueryTrackingBehavior.NoTracking : QueryTrackingBehavior.TrackAll;
+            }
 
-            reportsQueryable = reportsQueryable
-                 .If(nameLike != null, c => c.Where(r => r.Name == nameLike))
-                 .TagWith(QueryTag("Detailed list light"))
-            .OrderBy(r => r.ReportId)
-            .Skip(Constants.DEFAULT_SKIP)
-            .Take(Constants.DEFAULT_TAKE);
+            var reportQueryable = Db.Reports
+                        .If(withIncludes, x=> x.Include(r => r.Config))
+                        .If(withIncludes, x => x.Include(r => r.Comments));
 
-            var reports = await reportsQueryable.ToListAsync();
-
-            var reportDtos = Mapper.Map<List<ReportDto>>(reports);
-
-            var result = new ReportResponse(reportDtos.Count(), Serialize(reportDtos));
-
-            return result;
+            return reportQueryable.Where(r => r.IsArchived == false);
         }
     }
 }

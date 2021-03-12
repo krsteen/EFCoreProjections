@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace EFCorePerformance.Cmd.Service
 {
-    public class ReportServiceEFBetterIndexProjection : ReportServiceEf, IReportService
+    public class EfWithProjectionReportService : EfReportService, IReportService
     {    
 
-        public ReportServiceEFBetterIndexProjection()
-            : base(false, true)
+        public EfWithProjectionReportService()
+            : base(true)
         {
             
         }      
@@ -18,7 +18,7 @@ namespace EFCorePerformance.Cmd.Service
         public new async Task<ReportResponse> GetLightReportListAsync(string nameLike = null)
         {
             var reportsQueryable = GetReportQueryable(false)
-                 .TagWith(QueryTag("Report list light"))
+                 .TagWith(QueryTag("EF Projection - Report list light"))
                    .If(nameLike != null, c => c.Where(r => r.Name == nameLike))
               .OrderBy(r => r.ReportId)
               .Skip(Constants.DEFAULT_SKIP)
