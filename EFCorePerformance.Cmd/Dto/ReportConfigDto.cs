@@ -1,33 +1,10 @@
-﻿using EFCorePerformance.Cmd.Model.Dapper;
-using EFCorePerformance.Cmd.Model.EF;
-
-namespace EFCorePerformance.Cmd.Dto
+﻿namespace EFCorePerformance.Cmd.Dto
 {
     public class ReportConfigDto
     {
-        public ReportConfigDto(ReportConfigWithBasicIndex config)
+        public ReportConfigDto()
         {
-            ConfigId = config.ConfigId;
-            Name = config.Name;
-            Description = config.Description;
-            VeryUsefulInformation = config.VeryUsefulInformation;
-        }
-
-        public ReportConfigDto(ReportConfig config)
-        {
-            ConfigId = config.ConfigId;
-            Name = config.Name;
-            Description = config.Description;
-            VeryUsefulInformation = config.VeryUsefulInformation;
-        }
-
-        public ReportConfigDto(ReportConfigDapper config)
-        {
-            ConfigId = config.ConfigId;
-            Name = config.Name;
-            Description = config.Description;
-            VeryUsefulInformation = config.VeryUsefulInformation;
-        }
+        }      
 
         public int ConfigId { get; set; }
 

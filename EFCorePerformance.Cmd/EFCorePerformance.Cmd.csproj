@@ -30,9 +30,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Service\Dapper\" />
-    <Folder Include="Service\EF\" />
-  </ItemGroup>
-
 </Project>

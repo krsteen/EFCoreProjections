@@ -1,4 +1,5 @@
-﻿using EFCorePerformance.Cmd.Service;
+﻿using EFCorePerformance.Cmd.Dto;
+using EFCorePerformance.Cmd.Service;
 using EFCorePerformance.Cmd.Stats;
 using System;
 using System.Collections.Generic;
@@ -11,32 +12,27 @@ namespace EFCorePerformance.Cmd
 {
     class Program
     {
+        const int TEST_ITERATIONS = 10;
+
         static readonly List<string> Summaries = new List<string>();
         static readonly List<RunStats> Stats = new List<RunStats>();
         static readonly TestDataService TestDataService = new TestDataService();
 
-        static string WorkingFolder = $"D:\\Workspace\\EFCorePerformancev2\\{DateTime.Now.ToFileTime()}\\";
+        static readonly string WorkingFolder = $"D:\\Workspace\\EFCorePerformancev2\\{DateTime.Now.ToFileTime()}\\";
 
-        static async Task Main(string[] args)
+        static async Task Main()
         {
             //await ResetDatabase();
 
-            Directory.CreateDirectory(WorkingFolder);
+            Directory.CreateDirectory(WorkingFolder);        
 
-            //await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: true, useNoTracking: false), 0, "EF Basic index Home made lazy load", 0, 3, 4);
+            await RunTestsOnService(new EfReportService(useNoTracking: false), 0, "EF Core", 0, 1, 2);
 
-            //await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: false, useNoTracking: false), 1, "EF Basic index Include", 0, 1, 2, 3, 4);
+            await RunTestsOnService(new EfReportService(useNoTracking: true), 1, "EF Core AsNoTracking()", 0, 1, 2);
 
-            //await RunTestsOnService(new ReportServiceEFBasicIndex(useBadLazyLoad: false, useNoTracking: true), 2, "EF Basic index Include AsNoTracking", 0, 1, 2, 3, 4);
+            await RunTestsOnService(new EfWithProjectionReportService(), 2, "EF Core Projection AsNoTracking()", 2);          
 
-            await RunTestsOnService(new ReportServiceEf(useBadLazyLoad: false, useNoTracking: true), 0, "EF Better index Include AsNoTracking", 0);
-
-            await RunTestsOnService(new EfWithProjectionReportService(), 1, "EF Better index Include AsNoTracking Projection", 0, 1, 2);
-
-          
-
-            await RunTestsOnService(new ReportServiceDapperBetterIndexes(), 3, "Dapper better index", 0, 1, 2);           
-           
+            await RunTestsOnService(new DapperReportService(), 3, "Dapper", 0, 1, 2);            
 
             StatCsvWriter.Write(Stats, WorkingFolder);
 
@@ -62,16 +58,23 @@ namespace EFCorePerformance.Cmd
 
             var testsToRunHs = new HashSet<int>(testsToRun);
 
+            ReportResponse reportResponse = null;
+
             if (testsToRunHs.Contains(0))
             {
                 await clearCacheService.ClearCache();
 
                 spElapsed.Restart();
-                var reportResponse = await service.GetReportByIdAsync(idOfActiveReport);
+
+                for (var testCount = 1; testCount <= TEST_ITERATIONS; testCount++)
+                    reportResponse = await service.GetReportByIdAsync(idOfActiveReport);
+
                 spElapsed.Stop();
+
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
-                AddToSummary(service, "by id", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 0, scenarioName, "single item", spElapsed.Elapsed.TotalMilliseconds, reportResponse.ResultAsJson, reportResponse.ItemCount);
+
+                AddToSummary(service, "single report by id", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
+                AddToStats(serviceIndex, 0, scenarioName, "single report by id", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
             }
 
             if (testsToRunHs.Contains(1))
@@ -79,11 +82,15 @@ namespace EFCorePerformance.Cmd
                 await clearCacheService.ClearCache();
 
                 spElapsed.Restart();
-                var reportResponse = await service.GetLightReportListAsync();
+
+                for (var testCount = 1; testCount <= TEST_ITERATIONS; testCount++)
+                    reportResponse = await service.GetDetailedReportListAsync(Constants.REPORT_NAME_SEARCH);
+               
                 spElapsed.Stop();
+
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
-                AddToSummary(service, "light list", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 1, scenarioName, "light list, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds, reportResponse.ResultAsJson, reportResponse.ItemCount);
+                AddToSummary(service, "detailed list with search", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
+                AddToStats(serviceIndex, 4, scenarioName, "detailed list with search, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
             }
 
             if (testsToRunHs.Contains(2))
@@ -91,43 +98,22 @@ namespace EFCorePerformance.Cmd
                 await clearCacheService.ClearCache();
 
                 spElapsed.Restart();
-                    var reportResponse = await service.GetLightReportListAsync(Constants.REPORT_NAME_SEARCH);
+
+                for (var testCount = 1; testCount <= TEST_ITERATIONS; testCount++)
+                    reportResponse = await service.GetLightReportListAsync(Constants.REPORT_NAME_SEARCH);
+
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
                 AddToSummary(service, "light list with search", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 2, scenarioName, "light list with search, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds, reportResponse.ResultAsJson, reportResponse.ItemCount);
-            }
-
-            if (testsToRunHs.Contains(3))
-            {
-                await clearCacheService.ClearCache();
-
-                spElapsed.Restart();
-                var reportResponse = await service.GetDetailedReportListAsync();
-                spElapsed.Stop();
-                elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
-                AddToSummary(service, "detailed list", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 3, scenarioName, "detailed list, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds, reportResponse.ResultAsJson, reportResponse.ItemCount);
-            }
-
-            if (testsToRunHs.Contains(4))
-            {
-                await clearCacheService.ClearCache();
-
-                spElapsed.Restart();
-                var reportListJson = await service.GetDetailedReportListAsync(Constants.REPORT_NAME_SEARCH);
-                spElapsed.Stop();
-                elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
-                AddToSummary(service, "detailed list with search", reportListJson.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 4, scenarioName, "detailed list with search, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds, reportListJson.ResultAsJson, reportListJson.ItemCount);
-            }
+                AddToStats(serviceIndex, 2, scenarioName, "light list with search, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
+            }          
 
             LgService(service, $"Completed in {(int)elapsedTotal}");
         }
 
         static async Task ResetDatabase()
         {
-            throw new NotImplementedException("Hell no!");
+            //throw new NotImplementedException("Hell no!");
 
             await TestDataService.ResetDatabaseAndPopulateWithTestData();
 
@@ -174,6 +160,5 @@ namespace EFCorePerformance.Cmd
 
             File.WriteAllTextAsync($"{WorkingFolder}_{serviceIndex}_{testIndex}_{testName.Replace(", ", "")}_{method.Replace(" ", "")}.json", jsonResult);
         }
-
     }
 }

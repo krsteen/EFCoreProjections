@@ -1,12 +1,10 @@
-﻿namespace EFCorePerformance.Cmd.DapperModel
+﻿namespace EFCorePerformance.Cmd.Dto
 {
     public class ReportListItemDto
     {
-        public ReportListItemDto(int id, string name, string status)
+        public ReportListItemDto()
         {
-            ReportId = id;
-            Name = name;
-            Status = status;
+          
         }
 
         public int ReportId { get; set; }

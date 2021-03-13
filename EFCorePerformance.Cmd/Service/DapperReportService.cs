@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using EFCorePerformance.Cmd.DapperModel;
 using EFCorePerformance.Cmd.Dto;
 using EFCorePerformance.Cmd.Model;
 using Microsoft.Data.SqlClient;
@@ -52,7 +51,8 @@ namespace EFCorePerformance.Cmd.Service
                     new { Id = reportId },
                       splitOn: "ConfigId, CommentId");
 
-                var reportDto = new ReportDto(reports.Distinct().SingleOrDefault());
+                var reportsDistinct = reports.Distinct().SingleOrDefault();
+                var reportDto = Mapper.Map<ReportDto>(reportsDistinct);
 
                 var result = new ReportResponse(1, Serialize(reportDto));
 
@@ -96,13 +96,14 @@ namespace EFCorePerformance.Cmd.Service
                          reportEntry.Comments.Add(comment);
                          return reportEntry;
                      },
-                     param: nameFilter == null ? null : new { Name = $"{nameFilter}" },
+                     param: nameFilter == null ? null : new { Name = $"%{nameFilter}%" },
                       splitOn: "ConfigId, CommentId"
 
                      );
 
                 var reportsDistinct = reports.Distinct().ToList();
-                return new ReportResponse(reportsDistinct.Count, Serialize(reportsDistinct));
+                var reportsDto = Mapper.Map<List<ReportDto>>(reportsDistinct);
+                return new ReportResponse(reportsDto.Count, Serialize(reportsDto));
             }
         }
 
@@ -117,10 +118,11 @@ namespace EFCorePerformance.Cmd.Service
                 await connection.OpenAsync();
 
                 var reports = await connection.QueryAsync<ReportListItemDto>(query,
-                    param: nameFilter == null ? null : new { Name = $"{nameFilter}" }
+                    param: nameFilter == null ? null : new { Name = $"%{nameFilter}%" }
                     );
 
-                var result = new ReportResponse(reports.Count(), Serialize(reports));
+                var reportsDto = Mapper.Map<List<ReportListItemDto>>(reports);
+                var result = new ReportResponse(reportsDto.Count(), Serialize(reportsDto));
 
                 return result;
             }
@@ -128,7 +130,7 @@ namespace EFCorePerformance.Cmd.Service
 
         string AddJoins(string baseQuery, string aliasToJoinWith = "r")
         {
-            return baseQuery += " INNER JOIN [dbo].[ReportConfigs] cnf ON {aliasToJoinWith}.ConfigId = cnf.ConfigId INNER JOIN [dbo].[ReportComments] cm ON {aliasToJoinWith}.ReportId = cm.ReportId ";
+            return baseQuery += $" INNER JOIN [dbo].[ReportConfigs] cnf ON {aliasToJoinWith}.ConfigId = cnf.ConfigId INNER JOIN [dbo].[ReportComments] cm ON {aliasToJoinWith}.ReportId = cm.ReportId ";
         }
 
         string AddPaging(string baseQuery, int skip, int take)
@@ -148,7 +150,7 @@ namespace EFCorePerformance.Cmd.Service
 
         string AddNameWhere(string baseQuery)
         {
-            return baseQuery += $" WHERE r.[IsArchived] = 0 AND r.[Name] = @Name";
+            return baseQuery += $" WHERE r.[IsArchived] = 0 AND r.[Name] LIKE @Name";
         }
     }
 }

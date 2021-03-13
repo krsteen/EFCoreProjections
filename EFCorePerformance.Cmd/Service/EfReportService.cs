@@ -1,5 +1,4 @@
-﻿using EFCorePerformance.Cmd.DapperModel;
-using EFCorePerformance.Cmd.Dto;
+﻿using EFCorePerformance.Cmd.Dto;
 using EFCorePerformance.Cmd.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -43,7 +42,7 @@ namespace EFCorePerformance.Cmd.Service
             var reportsQueryable = GetReportQueryable(false);
 
             reportsQueryable = reportsQueryable
-                 .If(nameLike != null, c => c.Where(r => r.Name == nameLike))
+                 .If(nameLike != null, c => c.Where(r => r.Name.Contains(nameLike)))
                  .TagWith(QueryTag("Detailed list light"))
             .OrderBy(r => r.ReportId)
             .Skip(Constants.DEFAULT_SKIP)
@@ -60,8 +59,8 @@ namespace EFCorePerformance.Cmd.Service
 
         public async Task<ReportResponse> GetLightReportListAsync(string nameLike = null)
         {
-            var reportsQueryable = GetReportQueryable()
-                   .If(nameLike != null, c => c.Where(r => r.Name == nameLike))
+            var reportsQueryable = GetReportQueryable(false)
+                   .If(nameLike != null, c => c.Where(r => r.Name.Contains(nameLike)))
                    .TagWith(QueryTag("Report list light"))
               .OrderBy(r => r.ReportId)
               .Skip(Constants.DEFAULT_SKIP)

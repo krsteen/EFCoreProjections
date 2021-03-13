@@ -1,12 +1,10 @@
-﻿using EFCorePerformance.Cmd.Model;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using Microsoft.Data.SqlClient;
-using System.Text;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace EFCorePerformance.Cmd.Service
 {
@@ -19,44 +17,36 @@ namespace EFCorePerformance.Cmd.Service
 
         public async Task<int> GetReportIdToSearchFor()
         {
-            return (await Db.ReportsWithBasicIndex.Where(r => r.ReportId > 50000).FirstOrDefaultAsync()).ReportId;
+            return (await Db.Reports.Where(r => r.ReportId > 50000).FirstOrDefaultAsync()).ReportId;
         }
 
 
         public async Task ResetDatabaseAndPopulateWithTestData()
         {
+            var randomCommentCount = new Random();
+
             using (var connection = new SqlConnection(ConnectionString))
             {
-                await connection.ExecuteAsync(CreateDeleteFrom("ReportCommentsWithBasicIndex"));
-                await connection.ExecuteAsync(CreateDeleteFrom("ReportsWithBasicIndex"));
-                await connection.ExecuteAsync(CreateDeleteFrom("ReportConfigsWithBasicIndexes"));
-
-                await connection.ExecuteAsync(CreateDeleteFrom("ReportCommentsWithBetterIndex"));
-                await connection.ExecuteAsync(CreateDeleteFrom("ReportsWithBetterIndex"));
-                await connection.ExecuteAsync(CreateDeleteFrom("ReportConfigsWithBetterIndexes"));
+                await connection.ExecuteAsync(DeleteStatement("ReportComments"));
+                await connection.ExecuteAsync(DeleteStatement("Reports"));
+                await connection.ExecuteAsync(DeleteStatement("ReportConfigs"));            
 
                 //Reseed identity columns
-                await connection.ExecuteAsync(CreateReseedFrom("ReportCommentsWithBasicIndex"));
-                await connection.ExecuteAsync(CreateReseedFrom("ReportsWithBasicIndex"));
-                await connection.ExecuteAsync(CreateReseedFrom("ReportConfigsWithBasicIndexes"));
-                await connection.ExecuteAsync(CreateReseedFrom("ReportCommentsWithBetterIndex"));
-                await connection.ExecuteAsync(CreateReseedFrom("ReportsWithBetterIndex"));
-                await connection.ExecuteAsync(CreateReseedFrom("ReportConfigsWithBetterIndexes"));
-
+                await connection.ExecuteAsync(ReseedStatement("ReportComments"));
+                await connection.ExecuteAsync(ReseedStatement("Reports"));
+                await connection.ExecuteAsync(ReseedStatement("ReportConfigs")); 
 
                 var reportStatusIndex = 0;
                 var totalReportCounter = 1;               
 
-                for (int reportConfigCounter = 1; reportConfigCounter < 100; reportConfigCounter++)
+                for (int reportConfigCounter = 1; reportConfigCounter < 200; reportConfigCounter++)
                 {                
                     var sbReportConfig = new StringBuilder();
                     var randomText = LongRandomText();
-                    sbReportConfig.AppendLine(ConfigInsert("ReportConfigsWithBasicIndexes", $"Report config {reportConfigCounter}", $"Description for report config {reportConfigCounter}", randomText));
-                    sbReportConfig.AppendLine(ConfigInsert("ReportConfigsWithBetterIndexes", $"Report config {reportConfigCounter}", $"Description for report config {reportConfigCounter}", randomText));
+                    sbReportConfig.AppendLine(ConfigInsert($"Report config {reportConfigCounter}", $"Description for report config {reportConfigCounter}", randomText));
                     await connection.ExecuteAsync(sbReportConfig.ToString());
-
                 
-                    for (var innerReportCounter = 1; innerReportCounter < 1000; innerReportCounter++)
+                    for (var innerReportCounter = 1; innerReportCounter < 2000; innerReportCounter++)
                     {
                         bool isArcived = innerReportCounter % 5 == 0;
 
@@ -65,25 +55,26 @@ namespace EFCorePerformance.Cmd.Service
                         //Create report
                         var sbReport = new StringBuilder();
 
-                        sbReport.AppendLine(ReportInsert("ReportsWithBasicIndex", $"Report {totalReportCounter}", $"Description for report {totalReportCounter}", isArcived, reportStatus, reportConfigCounter));
-                        sbReport.AppendLine(ReportInsert("ReportsWithBetterIndex", $"Report {totalReportCounter}", $"Description for report {totalReportCounter}", isArcived, reportStatus, reportConfigCounter));
-                        await connection.ExecuteAsync(sbReport.ToString());
-                     
+                        sbReport.AppendLine(ReportInsert($"Report {totalReportCounter}", $"Description for report {totalReportCounter}", isArcived, reportStatus, reportConfigCounter));                   
+                        await connection.ExecuteAsync(sbReport.ToString());                     
 
                         //Create report comments
                         var sbComment = new StringBuilder();
 
-                        for (var reportCommentCounter = 1; reportCommentCounter < 10; reportCommentCounter++)
-                        {
-                            var commentText = $"Report {totalReportCounter} was a really crappy report";
+                        var commentCountForThisReport = randomCommentCount.Next(1, 30);
 
-                            sbComment.AppendLine(CommentInsert("ReportCommentsWithBasicIndex", totalReportCounter, commentText));
-                            sbComment.AppendLine(CommentInsert("ReportCommentsWithBetterIndex", totalReportCounter, commentText));
+                        for (var reportCommentCounter = 1; reportCommentCounter < commentCountForThisReport; reportCommentCounter++)
+                        {
+                            var commentText = $"Report {totalReportCounter} was a really crappy report. {Guid.NewGuid().ToString().Substring(0, 5)}";
+                            sbComment.AppendLine(CommentInsert(totalReportCounter, commentText));
                         }
 
-                        await connection.ExecuteAsync(sbComment.ToString());
+                        if(sbComment.Length > 0)
+                        {
+                            await connection.ExecuteAsync(sbComment.ToString());
+                        }                      
 
-                        if (reportStatusIndex == 3)
+                        if (reportStatusIndex == 2)
                         {
                             reportStatusIndex = 0;
                         }
@@ -93,9 +84,7 @@ namespace EFCorePerformance.Cmd.Service
                         }
                         
                         totalReportCounter++;
-                    }
-
-                    await Db.SaveChangesAsync();
+                    }                  
                 }
 
             }
@@ -113,31 +102,31 @@ namespace EFCorePerformance.Cmd.Service
             return bogusText;
         }
 
-        static string CreateDeleteFrom(string tableName)
+        static string DeleteStatement(string tableName)
         {
             return $"DELETE FROM [dbo].[{tableName}]";
         }
 
-        static string CreateReseedFrom(string tableName)
+        static string ReseedStatement(string tableName)
         {
             return $"DBCC CHECKIDENT ('{tableName}', RESEED, 0)";
         }    
 
-        static string ConfigInsert(string tableName, string name, string description, string veryUsefulInfo)
+        static string ConfigInsert(string name, string description, string veryUsefulInfo)
         {
             //ReportConfigsWithBasicIndexes
-            return $"INSERT INTO [dbo].[{tableName}] ([Name],[Description],[VeryUsefulInformation]) VALUES ('{name}', '{description}', '{veryUsefulInfo}');";
+            return $"INSERT INTO [dbo].[ReportConfigs] ([Name],[Description],[VeryUsefulInformation]) VALUES ('{name}', '{description}', '{veryUsefulInfo}');";
         }
 
-        static string ReportInsert(string tableName, string name, string description, bool isArchived, string status, int configId)
+        static string ReportInsert(string name, string description, bool isArchived, string status, int configId)
         {
             var isarchivedBit = isArchived ? 1 : 0;
-            return $"INSERT INTO [dbo].[{tableName}] ([Name],[Description],[IsArchived],[Status],[ConfigId]) VALUES ('{name}', '{description}', {isarchivedBit}, '{status}', {configId});";
+            return $"INSERT INTO [dbo].[Reports] ([Name],[Description],[IsArchived],[Status],[ConfigId]) VALUES ('{name}', '{description}', {isarchivedBit}, '{status}', {configId});";
         }
 
-        static string CommentInsert(string tableName, int reportId, string comment)
+        static string CommentInsert(int reportId, string comment)
         {
-            return $"INSERT INTO [dbo].[{tableName}] ([ReportId],[Comment]) VALUES ({reportId}, '{comment}');";
+            return $"INSERT INTO [dbo].[ReportComments] ([ReportId],[Comment]) VALUES ({reportId}, '{comment}');";
         }
 
         static string GetReportStatus(int statusIndex)
@@ -153,11 +142,7 @@ namespace EFCorePerformance.Cmd.Service
             else if (statusIndex == 2)
             {
                 return "revised";
-            }
-            else if (statusIndex == 3)
-            {
-                return "archived";
-            }
+            }          
 
             return null;
         }

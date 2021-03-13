@@ -1,6 +1,6 @@
-﻿using EFCorePerformance.Cmd.DapperModel;
-using EFCorePerformance.Cmd.Dto;
+﻿using EFCorePerformance.Cmd.Dto;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,15 +19,15 @@ namespace EFCorePerformance.Cmd.Service
         {
             var reportsQueryable = GetReportQueryable(false)
                  .TagWith(QueryTag("EF Projection - Report list light"))
-                   .If(nameLike != null, c => c.Where(r => r.Name == nameLike))
+                   .If(nameLike != null, c => c.Where(r => r.Name.Contains(nameLike)))
               .OrderBy(r => r.ReportId)
               .Skip(Constants.DEFAULT_SKIP)
               .Take(Constants.DEFAULT_TAKE)
-                .Select(r => new ReportListItemDto(r.ReportId, r.Name, r.Status));         
+                .Select(r => new ReportListItemDto() { ReportId = r.ReportId, Name = r.Name, Status = r.Status });         
 
             var reports = await reportsQueryable.ToListAsync();
 
-            var reportsDto = reports.Select(r => new ReportListItemDto(r.ReportId, r.Name, r.Status)).ToList();
+            var reportsDto = Mapper.Map<List<ReportListItemDto>>(reports);
 
             var result = new ReportResponse(reportsDto.Count, Serialize(reportsDto));
 
