@@ -42,7 +42,7 @@ namespace EFCorePerformance.Cmd.Service
             var reportsQueryable = GetReportQueryable(false);
 
             reportsQueryable = reportsQueryable
-                 .If(nameLike != null, c => c.Where(r => r.Name.Contains(nameLike)))
+                 .If(nameLike != null, c => c.Where(r => r.Name.StartsWith(nameLike)))
                  .TagWith(QueryTag("Detailed list light"))
             .OrderBy(r => r.ReportId)
             .Skip(Constants.DEFAULT_SKIP)
@@ -60,7 +60,7 @@ namespace EFCorePerformance.Cmd.Service
         public async Task<ReportResponse> GetLightReportListAsync(string nameLike = null)
         {
             var reportsQueryable = GetReportQueryable(false)
-                   .If(nameLike != null, c => c.Where(r => r.Name.Contains(nameLike)))
+                   .If(nameLike != null, c => c.Where(r => r.Name.StartsWith(nameLike)))
                    .TagWith(QueryTag("Report list light"))
               .OrderBy(r => r.ReportId)
               .Skip(Constants.DEFAULT_SKIP)

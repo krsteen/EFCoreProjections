@@ -9,42 +9,43 @@ using System.Threading.Tasks;
 namespace EFCorePerformance.Cmd.Service
 {
     public class DapperReportService : ServiceBase, IReportService
-    {     
+    {
 
         public DapperReportService()
             : base()
         {
-            
+
         }
-      
+
         public async Task<ReportResponse> GetReportByIdAsync(int reportId)
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
-                var reportDictionary = new Dictionary<int, Report>();
+                var reportDictionary = new Dictionary<int, ReportDapper>();
 
-                var query = @"SELECT r.ReportId, r.Name, r.Description, r.IsArchived, r.Status,
-                            cnf.ConfigId, cnf.Name, cnf.Description, cnf.VeryUsefulInformation,
-                            cm.CommentId, cm.Comment
+                var query = @"SELECT r.ReportId, r.Name as ReportName, r.Description as ReportDescription, r.IsArchived, r.Status, r.ConfigId,
+                            cnf.ConfigId, cnf.Name as ConfigName, cnf.Description as ConfigDescription, cnf.VeryUsefulInformation,
+                            cm.CommentId, cm.Comment, cm.ReportId
                             FROM [dbo].[Reports] r";
 
                 query = AddJoins(query);
                 query = AddIdWhere(query);
 
-                var reports = await connection.QueryAsync<Report, ReportConfig, ReportComment, Report>(query,
+                var reports = await connection.QueryAsync<ReportDapper, ReportConfigDapper, ReportCommentDapper, ReportDapper>(query,
 
                       (report, config, comment) =>
                       {
 
-                          if (!reportDictionary.TryGetValue(report.ReportId, out Report reportEntry))
+                          if (!reportDictionary.TryGetValue(report.ReportId, out ReportDapper reportEntry))
                           {
                               reportEntry = report;
-                              reportEntry.Comments = new List<ReportComment>();
+                              reportEntry.Comments = new List<ReportCommentDapper>();
                               reportDictionary.Add(reportEntry.ReportId, reportEntry);
+                              reportEntry.Config = config;                           
                           }
 
-                          reportEntry.Config = config;
                           reportEntry.Comments.Add(comment);
+
                           return reportEntry;
                       },
 
@@ -64,7 +65,7 @@ namespace EFCorePerformance.Cmd.Service
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
-                var reportDictionary = new Dictionary<int, Report>();
+                var reportDictionary = new Dictionary<int, ReportDapper>();
 
                 var query = @"WITH ctepaging AS (SELECT r.ReportId, r.Name as ReportName, r.Description as ReportDescription, r.IsArchived, r.Status,
                             r.ConfigId
@@ -76,33 +77,33 @@ namespace EFCorePerformance.Cmd.Service
                 query += "), ctejoin as (";
                 query += " SELECT p.* ";
                 query += ", cnf.Name as ConfigName, cnf.Description as ConfigDescription, cnf.VeryUsefulInformation";
-                query += ", cm.CommentId, cm.Comment ";
+                query += ", cm.CommentId, cm.Comment, cm.ReportId ";
                 query += " FROM ctepaging p";
                 query = AddJoins(query, "p");
-                query += ") SELECT * FROM ctejoin ";
+                query += ") SELECT DISTINCT * FROM ctejoin ";
 
-                var reports = await connection.QueryAsync<Report, ReportConfig, ReportComment, Report>(query,
+                var reports = await connection.QueryAsync<ReportDapper, ReportConfigDapper, ReportCommentDapper, ReportDapper>(query,
                      (report, config, comment) =>
                      {
-
-                         if (!reportDictionary.TryGetValue(report.ReportId, out Report reportEntry))
+                         if (!reportDictionary.TryGetValue(report.ReportId, out ReportDapper reportEntry))
                          {
                              reportEntry = report;
-                             reportEntry.Comments = new List<ReportComment>();
+                             reportEntry.Comments = new List<ReportCommentDapper>();
                              reportDictionary.Add(reportEntry.ReportId, reportEntry);
+                             reportEntry.Config = config;                          
                          }
 
-                         reportEntry.Config = config;
                          reportEntry.Comments.Add(comment);
+
                          return reportEntry;
                      },
-                     param: nameFilter == null ? null : new { Name = $"%{nameFilter}%" },
+                     param: nameFilter == null ? null : new { Name = $"{nameFilter}%" },
                       splitOn: "ConfigId, CommentId"
 
                      );
 
-                var reportsDistinct = reports.Distinct().ToList();
-                var reportsDto = Mapper.Map<List<ReportDto>>(reportsDistinct);
+
+                var reportsDto = Mapper.Map<List<ReportDto>>(reports.Distinct());
                 return new ReportResponse(reportsDto.Count, Serialize(reportsDto));
             }
         }
@@ -118,7 +119,7 @@ namespace EFCorePerformance.Cmd.Service
                 await connection.OpenAsync();
 
                 var reports = await connection.QueryAsync<ReportListItemDto>(query,
-                    param: nameFilter == null ? null : new { Name = $"%{nameFilter}%" }
+                    param: nameFilter == null ? null : new { Name = $"{nameFilter}%" }
                     );
 
                 var reportsDto = Mapper.Map<List<ReportListItemDto>>(reports);
@@ -130,7 +131,7 @@ namespace EFCorePerformance.Cmd.Service
 
         string AddJoins(string baseQuery, string aliasToJoinWith = "r")
         {
-            return baseQuery += $" INNER JOIN [dbo].[ReportConfigs] cnf ON {aliasToJoinWith}.ConfigId = cnf.ConfigId INNER JOIN [dbo].[ReportComments] cm ON {aliasToJoinWith}.ReportId = cm.ReportId ";
+            return baseQuery += $" LEFT JOIN [dbo].[ReportConfigs] cnf ON {aliasToJoinWith}.ConfigId = cnf.ConfigId LEFT JOIN [dbo].[ReportComments] cm ON {aliasToJoinWith}.ReportId = cm.ReportId ";
         }
 
         string AddPaging(string baseQuery, int skip, int take)

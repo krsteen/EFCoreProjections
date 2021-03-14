@@ -1,6 +1,7 @@
 ﻿namespace EFCorePerformance.Cmd.Model
 {
-    public class ReportComment
+
+    public class ReportCommentBase
     {
         public int CommentId { get; set; }
 
@@ -8,6 +9,15 @@
 
         public string Comment { get; set; }
 
+    }
+
+    public class ReportComment : ReportCommentBase
+    {
         public Report Report { get; set; }
+    }
+
+    public class ReportCommentDapper : ReportCommentBase
+    {
+
     }
 }

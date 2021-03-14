@@ -10,9 +10,9 @@ namespace EFCorePerformance.Cmd.Service
         protected string ConnectionString;
         protected MyDbContext Db { get { return GetDatabaseContext(); } }
 
-        protected MapperConfiguration MapperConfiguration;
         protected Mapper Mapper;
-
+        protected MapperConfiguration MapperConfiguration;
+      
 
         public ServiceBase()
         {

@@ -19,7 +19,7 @@ namespace EFCorePerformance.Cmd.Service
         {
             var reportsQueryable = GetReportQueryable(false)
                  .TagWith(QueryTag("EF Projection - Report list light"))
-                   .If(nameLike != null, c => c.Where(r => r.Name.Contains(nameLike)))
+                   .If(nameLike != null, c => c.Where(r => r.Name.StartsWith(nameLike)))
               .OrderBy(r => r.ReportId)
               .Skip(Constants.DEFAULT_SKIP)
               .Take(Constants.DEFAULT_TAKE)
