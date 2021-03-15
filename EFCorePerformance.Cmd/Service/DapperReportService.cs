@@ -25,7 +25,7 @@ namespace EFCorePerformance.Cmd.Service
 
                 var query = @"SELECT r.ReportId, r.Name as ReportName, r.Description as ReportDescription, r.IsArchived, r.Status, r.ConfigId,
                             cnf.ConfigId, cnf.Name as ConfigName, cnf.Description as ConfigDescription, cnf.VeryUsefulInformation,
-                            cm.CommentId, cm.Comment, cm.ReportId
+                            cm.CommentId, cm.Comment
                             FROM [dbo].[Reports] r";
 
                 query = AddJoins(query);
@@ -35,13 +35,12 @@ namespace EFCorePerformance.Cmd.Service
 
                       (report, config, comment) =>
                       {
-
                           if (!reportDictionary.TryGetValue(report.ReportId, out ReportDapper reportEntry))
                           {
                               reportEntry = report;
+                              reportEntry.Config = config;
                               reportEntry.Comments = new List<ReportCommentDapper>();
-                              reportDictionary.Add(reportEntry.ReportId, reportEntry);
-                              reportEntry.Config = config;                           
+                              reportDictionary.Add(reportEntry.ReportId, reportEntry);                                                         
                           }
 
                           reportEntry.Comments.Add(comment);
@@ -77,10 +76,10 @@ namespace EFCorePerformance.Cmd.Service
                 query += "), ctejoin as (";
                 query += " SELECT p.* ";
                 query += ", cnf.Name as ConfigName, cnf.Description as ConfigDescription, cnf.VeryUsefulInformation";
-                query += ", cm.CommentId, cm.Comment, cm.ReportId ";
+                query += ", cm.CommentId, cm.Comment";
                 query += " FROM ctepaging p";
                 query = AddJoins(query, "p");
-                query += ") SELECT DISTINCT * FROM ctejoin ";
+                query += ") SELECT * FROM ctejoin ";
 
                 var reports = await connection.QueryAsync<ReportDapper, ReportConfigDapper, ReportCommentDapper, ReportDapper>(query,
                      (report, config, comment) =>
@@ -88,9 +87,9 @@ namespace EFCorePerformance.Cmd.Service
                          if (!reportDictionary.TryGetValue(report.ReportId, out ReportDapper reportEntry))
                          {
                              reportEntry = report;
+                             reportEntry.Config = config;
                              reportEntry.Comments = new List<ReportCommentDapper>();
-                             reportDictionary.Add(reportEntry.ReportId, reportEntry);
-                             reportEntry.Config = config;                          
+                             reportDictionary.Add(reportEntry.ReportId, reportEntry);                                                    
                          }
 
                          reportEntry.Comments.Add(comment);

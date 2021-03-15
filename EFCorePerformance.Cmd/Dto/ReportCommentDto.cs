@@ -7,9 +7,7 @@
 
         }             
 
-        public int CommentId { get; set; }
-
-        public int ReportId { get; set; }
+        public int CommentId { get; set; }       
 
         public string Comment { get; set; }
     }

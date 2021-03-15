@@ -90,7 +90,7 @@ namespace EFCorePerformance.Cmd
 
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
                 AddToSummary(service, "detailed list with search", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
-                AddToStats(serviceIndex, 4, scenarioName, "detailed list with search, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
+                AddToStats(serviceIndex, 1, scenarioName, "detailed list with search, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
             }
 
             if (testsToRunHs.Contains(2))

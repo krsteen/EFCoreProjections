@@ -39,11 +39,11 @@ namespace EFCorePerformance.Cmd.Service
 
         public async Task<ReportResponse> GetDetailedReportListAsync(string nameLike = null)
         {
-            var reportsQueryable = GetReportQueryable(false);
+            var reportsQueryable = GetReportQueryable();
 
             reportsQueryable = reportsQueryable
                  .If(nameLike != null, c => c.Where(r => r.Name.StartsWith(nameLike)))
-                 .TagWith(QueryTag("Detailed list light"))
+                 .TagWith(QueryTag("Detailed list"))
             .OrderBy(r => r.ReportId)
             .Skip(Constants.DEFAULT_SKIP)
             .Take(Constants.DEFAULT_TAKE);
