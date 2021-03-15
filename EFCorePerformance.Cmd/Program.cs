@@ -67,7 +67,9 @@ namespace EFCorePerformance.Cmd
                 spElapsed.Restart();
 
                 for (var testCount = 1; testCount <= TEST_ITERATIONS; testCount++)
+                {
                     reportResponse = await service.GetReportByIdAsync(idOfActiveReport);
+                }                    
 
                 spElapsed.Stop();
 
@@ -84,7 +86,9 @@ namespace EFCorePerformance.Cmd
                 spElapsed.Restart();
 
                 for (var testCount = 1; testCount <= TEST_ITERATIONS; testCount++)
+                {
                     reportResponse = await service.GetDetailedReportListAsync(Constants.REPORT_NAME_SEARCH);
+                }                   
                
                 spElapsed.Stop();
 
@@ -100,7 +104,9 @@ namespace EFCorePerformance.Cmd
                 spElapsed.Restart();
 
                 for (var testCount = 1; testCount <= TEST_ITERATIONS; testCount++)
+                {
                     reportResponse = await service.GetLightReportListAsync(Constants.REPORT_NAME_SEARCH);
+                }                 
 
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
@@ -112,14 +118,9 @@ namespace EFCorePerformance.Cmd
         }
 
         static async Task ResetDatabase()
-        {
-            //throw new NotImplementedException("Hell no!");
-
-            await TestDataService.ResetDatabaseAndPopulateWithTestData();
-
-            Lg("Summary");
+        { 
+            await TestDataService.ResetDatabaseAndPopulateWithTestData();        
         }
-
 
         static void Lg(string message, bool skipVerticalSpace = false)
         {
@@ -129,18 +130,7 @@ namespace EFCorePerformance.Cmd
             }
 
             Console.WriteLine(message);
-        }
-
-        static void LgResult(string message, string jsonResult, double elapsedMs)
-        {
-            Lg($"{message}");
-            Console.WriteLine("");
-            Lg("Result:", true);
-            Lg(jsonResult, true);
-            var byteCount = Encoding.UTF8.GetByteCount(jsonResult);
-            Lg($"Elapsed: {(int)elapsedMs} ms, size: {byteCount} bytes");
-            Console.WriteLine("");
-        }
+        }       
 
         static void LgService(IReportService service, string messageSuffix)
         {

@@ -23,7 +23,7 @@ namespace EFCorePerformance.Cmd.Service
             {
                 var reportDictionary = new Dictionary<int, ReportDapper>();
 
-                var query = @"SELECT r.ReportId, r.Name as ReportName, r.Description as ReportDescription, r.IsArchived, r.Status, r.ConfigId,
+                var query = @"SELECT r.ReportId, r.Name as ReportName, r.Description as ReportDescription, r.IsArchived, r.Status,
                             cnf.ConfigId, cnf.Name as ConfigName, cnf.Description as ConfigDescription, cnf.VeryUsefulInformation,
                             cm.CommentId, cm.Comment
                             FROM [dbo].[Reports] r";
@@ -39,6 +39,7 @@ namespace EFCorePerformance.Cmd.Service
                           {
                               reportEntry = report;
                               reportEntry.Config = config;
+                              reportEntry.ConfigId = config.ConfigId;
                               reportEntry.Comments = new List<ReportCommentDapper>();
                               reportDictionary.Add(reportEntry.ReportId, reportEntry);                                                         
                           }
@@ -74,8 +75,8 @@ namespace EFCorePerformance.Cmd.Service
                 query = AddPaging(query, Constants.DEFAULT_SKIP, Constants.DEFAULT_TAKE);
 
                 query += "), ctejoin as (";
-                query += " SELECT p.* ";
-                query += ", cnf.Name as ConfigName, cnf.Description as ConfigDescription, cnf.VeryUsefulInformation";
+                query += " SELECT p.ReportId, p.ReportName, p.ReportDescription, p.IsArchived, p.Status";
+                query += ", cnf.ConfigId, cnf.Name as ConfigName, cnf.Description as ConfigDescription, cnf.VeryUsefulInformation";
                 query += ", cm.CommentId, cm.Comment";
                 query += " FROM ctepaging p";
                 query = AddJoins(query, "p");
@@ -87,6 +88,7 @@ namespace EFCorePerformance.Cmd.Service
                          if (!reportDictionary.TryGetValue(report.ReportId, out ReportDapper reportEntry))
                          {
                              reportEntry = report;
+                             reportEntry.ConfigId = config.ConfigId;
                              reportEntry.Config = config;
                              reportEntry.Comments = new List<ReportCommentDapper>();
                              reportDictionary.Add(reportEntry.ReportId, reportEntry);                                                    
