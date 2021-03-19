@@ -9,15 +9,14 @@ namespace EFCorePerformance.Cmd.Service
         public ClearDbCacheService()
             : base()
         {
-        }
-
-      
+        }      
 
         public async Task ClearCache()
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
-                await connection.ExecuteAsync("DBCC DROPCLEANBUFFERS");
+                //await connection.ExecuteAsync("CHECKPOINT");
+                //await connection.ExecuteAsync("DBCC DROPCLEANBUFFERS");
                 await connection.ExecuteAsync("DBCC FREEPROCCACHE");              
             }
         }

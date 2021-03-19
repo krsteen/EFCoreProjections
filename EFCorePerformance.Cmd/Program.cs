@@ -12,7 +12,7 @@ namespace EFCorePerformance.Cmd
 {
     class Program
     {
-        const int TEST_ITERATIONS = 10;
+        const int TEST_ITERATIONS = 100;
 
         static readonly List<string> Summaries = new List<string>();
         static readonly List<RunStats> Stats = new List<RunStats>();
@@ -41,7 +41,6 @@ namespace EFCorePerformance.Cmd
                 Lg(curSummaryItem, true);
             }
         }
-
 
 
         static async Task RunTestsOnService(IReportService service, int serviceIndex, string scenarioName, params int[] testsToRun)
@@ -75,7 +74,7 @@ namespace EFCorePerformance.Cmd
 
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
 
-                AddToSummary(service, "single report by id", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
+                AddToSummary(service, "single report by id", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS);
                 AddToStats(serviceIndex, 0, scenarioName, "single report by id", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
             }
 
@@ -93,7 +92,7 @@ namespace EFCorePerformance.Cmd
                 spElapsed.Stop();
 
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
-                AddToSummary(service, "detailed list with search", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
+                AddToSummary(service, "detailed list with search", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS);
                 AddToStats(serviceIndex, 1, scenarioName, "detailed list with search, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
             }
 
@@ -110,7 +109,7 @@ namespace EFCorePerformance.Cmd
 
                 spElapsed.Stop();
                 elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
-                AddToSummary(service, "light list with search", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds);
+                AddToSummary(service, "light list with search", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS);
                 AddToStats(serviceIndex, 2, scenarioName, "light list with search, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
             }          
 
