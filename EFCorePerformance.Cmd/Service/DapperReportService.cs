@@ -14,7 +14,11 @@ namespace EFCorePerformance.Cmd.Service
         public DapperReportService()
             : base()
         {
-
+            //Preferred way of getting db connection string from EF Core database context
+            //var db = new MyDbContext();
+            //var connectionString = db.Database.GetDbConnection().ConnectionString;
+            //Remember to include Persist Security Info=True in connection string, or EF Core will hide the import stuff 
+            //"DbConnectionString": "Server=.;Uid=<userlogon>;Pwd=<password>;Database=<databasename>;Persist Security Info=True;",
         }
 
         public async Task<ReportResponse> GetReportByIdAsync(int reportId)
