@@ -12,7 +12,7 @@ namespace EFCorePerformance.Cmd
 {
     class Program
     {
-        const int TEST_ITERATIONS = 100;
+        const int TEST_ITERATIONS = 1;
 
         static readonly List<string> Summaries = new List<string>();
         static readonly List<RunStats> Stats = new List<RunStats>();

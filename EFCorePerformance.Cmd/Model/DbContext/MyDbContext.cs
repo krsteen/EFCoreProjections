@@ -41,18 +41,7 @@ namespace EFCorePerformance.Cmd.Model
                 r.ReportId,
                 r.Status
             })
-            .HasFilter("[IsArchived] = 0");
-
-            ////Keyless type for report table
-            //modelBuilder.Entity<ReportLightWithBetterIndex>(eb =>
-            //{
-            //    eb.HasNoKey();
-            //    eb.ToTable("[dbo].[ReportsWithBetterIndex]");
-            //});
+            .HasFilter("[IsArchived] = 0");          
         }
-      
-
-      
-
     }
 }

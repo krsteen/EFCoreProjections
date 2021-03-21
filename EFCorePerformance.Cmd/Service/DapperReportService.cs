@@ -17,7 +17,7 @@ namespace EFCorePerformance.Cmd.Service
             //Preferred way of getting db connection string from EF Core database context
             //var db = new MyDbContext();
             //var connectionString = db.Database.GetDbConnection().ConnectionString;
-            //Remember to include Persist Security Info=True in connection string, or EF Core will hide the import stuff 
+            //Remember to include Persist Security Info=True in connection string, or EF Core will hide the important stuff 
             //"DbConnectionString": "Server=.;Uid=<userlogon>;Pwd=<password>;Database=<databasename>;Persist Security Info=True;",
         }
 

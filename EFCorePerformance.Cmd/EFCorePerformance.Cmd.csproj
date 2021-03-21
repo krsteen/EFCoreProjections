@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="D:\Dropbox\Kildekode\2021 BouvetOne EfCoreDapper\20210319201155_renameReportToProjects_AFTER.cs" Link="20210319201155_renameReportToProjects_AFTER.cs" />
-    <Compile Include="D:\Dropbox\Kildekode\2021 BouvetOne EfCoreDapper\20210319201155_renameReportToProjects_BEFORE.cs" Link="20210319201155_renameReportToProjects_BEFORE.cs" />
+    <Compile Include="D:\Dropbox\Kildekode\2021 BouvetOne EfCoreDapper\20210319201155_renameReportToProjects_AFTER.cs" Link="MigrationsWithDataLoss\20210319201155_renameReportToProjects_AFTER.cs" />
+    <Compile Include="D:\Dropbox\Kildekode\2021 BouvetOne EfCoreDapper\20210319201155_renameReportToProjects_BEFORE.cs" Link="MigrationsWithDataLoss\20210319201155_renameReportToProjects_BEFORE.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,6 +33,10 @@
     <None Update="appsettings.Development.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="MigrationsWithDataLoss\" />
   </ItemGroup>
 
 </Project>
