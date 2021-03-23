@@ -16,8 +16,5 @@
         public Report Report { get; set; }
     }
 
-    public class ReportCommentDapper : ReportCommentBase
-    {
-
-    }
+   
 }

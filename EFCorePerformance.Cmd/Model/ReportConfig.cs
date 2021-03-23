@@ -18,12 +18,5 @@ namespace EFCorePerformance.Cmd.Model
     public class ReportConfig : ReportConfigBase
     {
         public List<Report> Reports { get; set; }
-    }
-
-    public class ReportConfigDapper : ReportConfigBase
-    {
-        public string ConfigName { get { return Name; } set { Name = value; } }
-
-        public string ConfigDescription { get { return Description; } set { Description = value; } }
-    }
+    }    
 }

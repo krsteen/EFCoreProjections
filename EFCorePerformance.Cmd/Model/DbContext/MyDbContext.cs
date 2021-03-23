@@ -33,7 +33,8 @@ namespace EFCorePerformance.Cmd.Model
             .WithMany(c => c.Reports)
             .HasForeignKey(r => r.ConfigId);
 
-            //Indexs
+            //Index
+            //Covering index for light report list
             modelBuilder.Entity<Report>()
             .HasIndex(r => r.Name)
             .IncludeProperties(r => new

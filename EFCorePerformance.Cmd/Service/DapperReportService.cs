@@ -39,6 +39,7 @@ namespace EFCorePerformance.Cmd.Service
 
                       (report, config, comment) =>
                       {
+                          //En hit her per rad
                           if (!reportDictionary.TryGetValue(report.ReportId, out ReportDapper reportEntry))
                           {
                               reportEntry = report;
@@ -103,7 +104,7 @@ namespace EFCorePerformance.Cmd.Service
                          return reportEntry;
                      },
                      param: nameFilter == null ? null : new { Name = $"{nameFilter}%" },
-                      splitOn: "ConfigId, CommentId"
+                    splitOn: "ConfigId, CommentId"
 
                      );
 

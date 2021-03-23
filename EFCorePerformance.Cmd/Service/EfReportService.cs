@@ -15,14 +15,24 @@ namespace EFCorePerformance.Cmd.Service
             : base()
         {
             this.useNoTracking = useNoTracking;
-        }     
+        }        
+        
 
         public async Task<ReportResponse> GetReportByIdAsync(int id)
         {
-            var reportQueryable = GetReportQueryable();
+            //Se alternativ under: .AsNoTracking()
+            if (useNoTracking)
+            {
+                Db.ChangeTracker.QueryTrackingBehavior = useNoTracking ? QueryTrackingBehavior.NoTracking : QueryTrackingBehavior.TrackAll;
+            }
 
-            reportQueryable = reportQueryable.Where(r => r.ReportId == id);
-            reportQueryable = reportQueryable.TagWith(QueryTag("Report by Id"));
+            var reportQueryable = Db.Reports
+                        .Include(r => r.Config)
+                            //.ThenInclude(c=> c.<SomeRelatedProperty>)
+                        .Include(r => r.Comments)
+                        .Where(r => r.IsArchived == false && r.ReportId == id)
+                        .TagWith(QueryTag("Report by Id"));
+                            //.AsNoTracking();       
 
             var report = await reportQueryable.SingleOrDefaultAsync();
 
@@ -39,10 +49,10 @@ namespace EFCorePerformance.Cmd.Service
 
         public async Task<ReportResponse> GetDetailedReportListAsync(string nameLike = null)
         {
-            var reportsQueryable = GetReportQueryable();
+            //Moved common stuff to shared method
+            var reportsQueryable = GetReportQueryable(withIncludes: true, nameLike);
 
-            reportsQueryable = reportsQueryable
-                 .If(nameLike != null, c => c.Where(r => r.Name.StartsWith(nameLike)))
+            reportsQueryable = reportsQueryable               
                  .TagWith(QueryTag("Detailed list"))
             .OrderBy(r => r.ReportId)
             .Skip(Constants.DEFAULT_SKIP)
@@ -59,12 +69,12 @@ namespace EFCorePerformance.Cmd.Service
 
         public async Task<ReportResponse> GetLightReportListAsync(string nameLike = null)
         {
-            var reportsQueryable = GetReportQueryable(false)
-                   .If(nameLike != null, c => c.Where(r => r.Name.StartsWith(nameLike)))
-                   .TagWith(QueryTag("Report list light"))
-              .OrderBy(r => r.ReportId)
-              .Skip(Constants.DEFAULT_SKIP)
-              .Take(Constants.DEFAULT_TAKE);
+            var reportsQueryable =
+                GetReportQueryable(withIncludes: false, nameLike)               
+                .TagWith(QueryTag("Report list light"))
+                .OrderBy(r => r.ReportId)
+                .Skip(Constants.DEFAULT_SKIP)
+                .Take(Constants.DEFAULT_TAKE);
 
             var reports = await reportsQueryable.ToListAsync();
 
@@ -73,11 +83,9 @@ namespace EFCorePerformance.Cmd.Service
             var result = new ReportResponse(reportsDto.Count, Serialize(reportsDto));
 
             return result;
-        }
+        }      
 
-      
-
-        protected IQueryable<Report> GetReportQueryable(bool withIncludes = true)
+        protected IQueryable<Report> GetReportQueryable(bool withIncludes = true, string nameLike = null)
         {
             if (useNoTracking)
             {
@@ -86,9 +94,11 @@ namespace EFCorePerformance.Cmd.Service
 
             var reportQueryable = Db.Reports
                         .If(withIncludes, x=> x.Include(r => r.Config))
-                        .If(withIncludes, x => x.Include(r => r.Comments));
+                        .If(withIncludes, x => x.Include(r => r.Comments))
+                        .Where(r => r.IsArchived == false)
+                        .If(nameLike != null, c => c.Where(r => r.Name.StartsWith(nameLike)));
 
-            return reportQueryable.Where(r => r.IsArchived == false);
+            return reportQueryable;
         }
     }
 }

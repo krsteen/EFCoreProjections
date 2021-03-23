@@ -26,16 +26,5 @@ namespace EFCorePerformance.Cmd.Model
         public List<ReportComment> Comments { get; set; }
 
         public ReportConfig Config { get; set; }
-    }
-
-    public class ReportDapper : ReportBase
-    {
-        public string ReportName { get { return Name; } set { Name = value; } }
-
-        public string ReportDescription { get { return Description; } set { Description = value; } }
-
-        public List<ReportCommentDapper> Comments { get; set; }
-
-        public ReportConfigDapper Config { get; set; }
-    }
+    }   
 }
