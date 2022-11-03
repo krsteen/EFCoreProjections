@@ -56,6 +56,25 @@ namespace EFCoreProjections.Cmd
 
             ReportResponse reportResponse = null;
 
+            //SINGLE ITEM
+
+            await clearCacheService.ClearCache();
+
+            spElapsed.Restart();
+
+            for (var testCount = 1; testCount <= TEST_ITERATIONS; testCount++)
+            {
+                reportResponse = await service.GetByIdAsync(idOfActiveReport);
+            }
+
+            spElapsed.Stop();
+
+            elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
+
+            AddToSummary(service, "single report by id", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS);
+            AddToStats(scenarioName, "single report by id", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
+
+            //LIST
 
             await clearCacheService.ClearCache();
 

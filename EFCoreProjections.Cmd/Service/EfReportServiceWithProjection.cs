@@ -13,8 +13,28 @@ namespace EFCoreProjections.Cmd.Service
             : base()
         {
             
-        } 
-        
+        }
+
+        public async Task<ReportResponse> GetByIdAsync(int id)
+        {
+            var reportsQueryable =
+                     Db.Reports
+                     .TagWith(QueryTag("Report WITH projection ALL"))
+                     .Include(r => r.Config)
+                     .Include(r => r.Comments)
+                     .Where(r => r.ReportId == id)
+                     .AsNoTracking()
+                     .Select(r => new ReportListItemDto() { ReportId = r.ReportId, Name = r.Name, Status = r.Status, ConfigName = r.Config.Name });
+
+            var reports = await reportsQueryable.ToListAsync();
+
+            var reportsDto = Mapper.Map<List<ReportListItemDto>>(reports);
+
+            var result = new ReportResponse(reportsDto.Count, Serialize(reportsDto));
+
+            return result;
+        }
+
         public async Task<ReportResponse> GetListAsync(string nameLike)
         {
             var reportsQueryable =

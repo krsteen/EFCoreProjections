@@ -46,14 +46,14 @@ namespace EFCoreProjections.Cmd.Model
              });
 
 
-            //      modelBuilder.Entity<Report>()
-            //.HasIndex(r => new { r.Name, r.IsArchived })
-            //.IncludeProperties(r => new
-            //{
-            //    r.ReportId,
-            //    r.Status,
-            //    r.ConfigId
-            //});
+            modelBuilder.Entity<Report>()
+            .HasIndex(r => new { r.IsArchived, r.Name })
+            .IncludeProperties(r => new
+            {
+                r.ReportId,
+                r.Status,
+                r.ConfigId
+            });
         }
     }
 }
