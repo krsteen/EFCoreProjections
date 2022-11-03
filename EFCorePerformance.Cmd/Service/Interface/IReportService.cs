@@ -1,12 +1,10 @@
-﻿using EFCorePerformance.Cmd.Dto;
+﻿using EFCoreProjections.Cmd.Dto;
 using System.Threading.Tasks;
 
-namespace EFCorePerformance.Cmd.Service
+namespace EFCoreProjections.Cmd.Service
 {
     public interface IReportService
-    {  
-        Task<ReportResponse> GetReportByIdAsync(int reportId);
-        Task<ReportResponse> GetDetailedReportListAsync(string nameFilter = null);
-        Task<ReportResponse> GetLightReportListAsync(string nameFilter = null);
+    {
+        Task<ReportResponse> GetListAsync(string nameFilter);      
     }
 }

@@ -1,6 +1,6 @@
-﻿using EFCorePerformance.Cmd.Dto;
-using EFCorePerformance.Cmd.Service;
-using EFCorePerformance.Cmd.Stats;
+﻿using EFCoreProjections.Cmd.Dto;
+using EFCoreProjections.Cmd.Service;
+using EFCoreProjections.Cmd.Stats;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,7 +8,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EFCorePerformance.Cmd
+namespace EFCoreProjections.Cmd
 {
     class Program
     {
@@ -18,21 +18,17 @@ namespace EFCorePerformance.Cmd
         static readonly List<RunStats> Stats = new List<RunStats>();
         static readonly TestDataService TestDataService = new TestDataService();
 
-        static readonly string WorkingFolder = $"D:\\Workspace\\EFCorePerformancev2\\{DateTime.Now.ToFileTime()}\\";
+        static readonly string WorkingFolder = $"C:\\Appl\\Workspace\\EFCoreProjections\\{DateTime.Now.ToFileTime()}\\";
 
         static async Task Main()
         {
             //await ResetDatabase();
 
-            Directory.CreateDirectory(WorkingFolder);        
+            Directory.CreateDirectory(WorkingFolder);
 
-            await RunTestsOnService(new EfReportService(useNoTracking: false), 0, "EF Core", 0, 1, 2);
+            await RunTestsOnService(new EfReportServiceWithoutProjection(), "EF Core WITHOUT projection");
 
-            await RunTestsOnService(new EfReportService(useNoTracking: true), 1, "EF Core AsNoTracking()", 0, 1, 2);
-
-            await RunTestsOnService(new EfWithProjectionReportService(), 2, "EF Core Projection AsNoTracking()", 2);          
-
-            await RunTestsOnService(new DapperReportService(), 3, "Dapper", 0, 1, 2);            
+            await RunTestsOnService(new EfReportServiceWithProjection(), "EF Core WITHOUT projection");
 
             StatCsvWriter.Write(Stats, WorkingFolder);
 
@@ -43,7 +39,7 @@ namespace EFCorePerformance.Cmd
         }
 
 
-        static async Task RunTestsOnService(IReportService service, int serviceIndex, string scenarioName, params int[] testsToRun)
+        static async Task RunTestsOnService(IReportService service, string scenarioName)
         {
             var idOfActiveReport = await TestDataService.GetReportIdToSearchFor();
 
@@ -55,70 +51,30 @@ namespace EFCorePerformance.Cmd
 
             double elapsedTotal = 0;
 
-            var testsToRunHs = new HashSet<int>(testsToRun);
-
             ReportResponse reportResponse = null;
 
-            if (testsToRunHs.Contains(0))
+
+            await clearCacheService.ClearCache();
+
+            spElapsed.Restart();
+
+            for (var testCount = 1; testCount <= TEST_ITERATIONS; testCount++)
             {
-                await clearCacheService.ClearCache();
-
-                spElapsed.Restart();
-
-                for (var testCount = 1; testCount <= TEST_ITERATIONS; testCount++)
-                {
-                    reportResponse = await service.GetReportByIdAsync(idOfActiveReport);
-                }                    
-
-                spElapsed.Stop();
-
-                elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
-
-                AddToSummary(service, "single report by id", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS);
-                AddToStats(serviceIndex, 0, scenarioName, "single report by id", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
+                reportResponse = await service.GetListAsync(Constants.REPORT_NAME_SEARCH);
             }
 
-            if (testsToRunHs.Contains(1))
-            {
-                await clearCacheService.ClearCache();
+            spElapsed.Stop();
+            elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
+            AddToSummary(service, "List with filter", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS);
+            AddToStats(scenarioName, "List with filter", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
 
-                spElapsed.Restart();
-
-                for (var testCount = 1; testCount <= TEST_ITERATIONS; testCount++)
-                {
-                    reportResponse = await service.GetDetailedReportListAsync(Constants.REPORT_NAME_SEARCH);
-                }                   
-               
-                spElapsed.Stop();
-
-                elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
-                AddToSummary(service, "detailed list with search", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS);
-                AddToStats(serviceIndex, 1, scenarioName, "detailed list with search, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
-            }
-
-            if (testsToRunHs.Contains(2))
-            {
-                await clearCacheService.ClearCache();
-
-                spElapsed.Restart();
-
-                for (var testCount = 1; testCount <= TEST_ITERATIONS; testCount++)
-                {
-                    reportResponse = await service.GetLightReportListAsync(Constants.REPORT_NAME_SEARCH);
-                }                 
-
-                spElapsed.Stop();
-                elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
-                AddToSummary(service, "light list with search", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS);
-                AddToStats(serviceIndex, 2, scenarioName, "light list with search, limit to 100 items", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
-            }          
 
             LgService(service, $"Completed in {(int)elapsedTotal}");
         }
 
         static async Task ResetDatabase()
-        { 
-            await TestDataService.ResetDatabaseAndPopulateWithTestData();        
+        {
+            await TestDataService.ResetDatabaseAndPopulateWithTestData();
         }
 
         static void Lg(string message, bool skipVerticalSpace = false)
@@ -129,7 +85,7 @@ namespace EFCorePerformance.Cmd
             }
 
             Console.WriteLine(message);
-        }       
+        }
 
         static void LgService(IReportService service, string messageSuffix)
         {
@@ -142,12 +98,12 @@ namespace EFCorePerformance.Cmd
             Summaries.Add($"{service.GetType().Name}, {method}: elapsed {(int)elapsed}ms, size {byteCount} ");
         }
 
-        static void AddToStats(int serviceIndex, int testIndex, string testName, string method, double elapsed, string jsonResult, int itemCount)
+        static void AddToStats(string testName, string method, double elapsed, string jsonResult, int itemCount)
         {
             var byteCount = Encoding.UTF8.GetByteCount(jsonResult);
-            Stats.Add(new RunStats(serviceIndex, testIndex, testName, method, (int)elapsed, itemCount, byteCount));
+            Stats.Add(new RunStats(testName, method, (int)elapsed, itemCount, byteCount));
 
-            File.WriteAllTextAsync($"{WorkingFolder}_{serviceIndex}_{testIndex}_{testName.Replace(", ", "")}_{method.Replace(" ", "")}.json", jsonResult);
+            File.WriteAllTextAsync($"{WorkingFolder}_{testName.Replace(", ", "")}_{method.Replace(" ", "")}.json", jsonResult);
         }
     }
 }

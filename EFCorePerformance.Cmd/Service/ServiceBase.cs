@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using EFCorePerformance.Cmd.Model;
+using EFCoreProjections.Cmd.Model;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
-namespace EFCorePerformance.Cmd.Service
+namespace EFCoreProjections.Cmd.Service
 {
     public class ServiceBase
     {

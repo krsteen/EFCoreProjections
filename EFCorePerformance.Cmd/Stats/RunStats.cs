@@ -1,22 +1,16 @@
-﻿namespace EFCorePerformance.Cmd.Stats
+﻿namespace EFCoreProjections.Cmd.Stats
 {
     public class RunStats
     {
-        public RunStats(int serviceIndex, int testIndex, string testName, string methodName, int elapsedMs, int itemCount, int sizeBytes)
-        {
-            ServiceIndex = serviceIndex;
-            TestIndex = testIndex;
+        public RunStats(string testName, string methodName, int elapsedMs, int itemCount, int sizeBytes)
+        {          
             TestName = testName;
             MethodName = methodName;
             ElapsedMs = elapsedMs;
             ItemCount = itemCount;
             SizeBytes = sizeBytes;
         }
-
-        public int ServiceIndex { get; set; }
-
-        public int TestIndex { get; set; }
-
+        
         public string TestName { get; set; }
 
         public string MethodName { get; set; }

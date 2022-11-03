@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace EFCorePerformance.Cmd.Model
+namespace EFCoreProjections.Cmd.Model
 {
     public class ReportConfigBase
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.IO;
 
-namespace EFCorePerformance.Cmd
+namespace EFCoreProjections.Cmd
 {
     public static class ConfigUtil
     {

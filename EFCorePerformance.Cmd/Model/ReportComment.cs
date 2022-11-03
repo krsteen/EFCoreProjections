@@ -1,4 +1,4 @@
-﻿namespace EFCorePerformance.Cmd.Model
+﻿namespace EFCoreProjections.Cmd.Model
 {
 
     public class ReportCommentBase

@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace EFCorePerformance.Cmd
+namespace EFCoreProjections.Cmd
 {
     public static class QueryExtensions
     {

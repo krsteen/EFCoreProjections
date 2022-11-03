@@ -1,4 +1,4 @@
-﻿namespace EFCorePerformance.Cmd.Dto
+﻿namespace EFCoreProjections.Cmd.Dto
 {
     public class ReportConfigDto
     {

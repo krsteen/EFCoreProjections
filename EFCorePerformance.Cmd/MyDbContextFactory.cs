@@ -1,8 +1,8 @@
-﻿using EFCorePerformance.Cmd.Model;
+﻿using EFCoreProjections.Cmd.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace EFCorePerformance.Cmd
+namespace EFCoreProjections.Cmd
 {
     public class MyDbContextFactory : IDesignTimeDbContextFactory<MyDbContext>
     {

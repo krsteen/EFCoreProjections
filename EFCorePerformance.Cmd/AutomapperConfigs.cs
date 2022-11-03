@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using EFCorePerformance.Cmd.Dto;
-using EFCorePerformance.Cmd.Model;
+using EFCoreProjections.Cmd.Dto;
+using EFCoreProjections.Cmd.Model;
 
-namespace EFCorePerformance.Cmd
+namespace EFCoreProjections.Cmd
 {
     public class AutomapperConfigs : Profile
     {

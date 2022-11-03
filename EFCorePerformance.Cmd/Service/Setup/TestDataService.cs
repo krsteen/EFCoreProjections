@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EFCorePerformance.Cmd.Service
+namespace EFCoreProjections.Cmd.Service
 {
     public class TestDataService : ServiceBase
     {

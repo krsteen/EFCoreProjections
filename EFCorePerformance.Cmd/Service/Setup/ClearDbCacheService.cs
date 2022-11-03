@@ -2,7 +2,7 @@
 using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 
-namespace EFCorePerformance.Cmd.Service
+namespace EFCoreProjections.Cmd.Service
 {
     public class ClearDbCacheService : ServiceBase
     {

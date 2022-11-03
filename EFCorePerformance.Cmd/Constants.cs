@@ -1,4 +1,4 @@
-﻿namespace EFCorePerformance.Cmd
+﻿namespace EFCoreProjections.Cmd
 {
     public static class Constants
     {

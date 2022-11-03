@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace EFCorePerformance.Cmd.Dto
+namespace EFCoreProjections.Cmd.Dto
 {
     public class ReportDto
     {

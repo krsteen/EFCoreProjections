@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace EFCorePerformance.Cmd.Stats
+namespace EFCoreProjections.Cmd.Stats
 {
     public static class StatCsvWriter
     {

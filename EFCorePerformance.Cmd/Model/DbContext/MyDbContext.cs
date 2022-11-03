@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace EFCorePerformance.Cmd.Model
+namespace EFCoreProjections.Cmd.Model
 {
     //Add-Migration <migration name> -Context MyDbContext -StartupProject EFCorePerformance.Cmd -Project EFCorePerformance.Cmd
 
