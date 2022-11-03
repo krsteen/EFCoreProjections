@@ -1,9 +1,7 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace EFCoreProjections.Cmd.Stats
 {

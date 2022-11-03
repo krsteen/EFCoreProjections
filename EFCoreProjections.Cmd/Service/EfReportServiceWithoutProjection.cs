@@ -1,5 +1,4 @@
 ﻿using EFCoreProjections.Cmd.Dto;
-using EFCoreProjections.Cmd.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;

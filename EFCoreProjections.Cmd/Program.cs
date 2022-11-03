@@ -24,11 +24,14 @@ namespace EFCoreProjections.Cmd
         {
             //await ResetDatabase();
 
-            Directory.CreateDirectory(WorkingFolder);
+            Directory.CreateDirectory(WorkingFolder);          
 
             await RunTestsOnService(new EfReportServiceWithoutProjection(), "EF Core WITHOUT projection");
 
-            await RunTestsOnService(new EfReportServiceWithProjection(), "EF Core WITHOUT projection");
+            await RunTestsOnService(new EfReportServiceWithProjection(), "EF Core WITH projection ALL");
+
+            await RunTestsOnService(new EfReportServiceWithProjectionNotArchived(), "EF Core WITH projection ALL Non Archived");
+
 
             StatCsvWriter.Write(Stats, WorkingFolder);
 

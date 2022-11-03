@@ -17,7 +17,7 @@ namespace EFCoreProjections.Cmd.Service
 
         public async Task<int> GetReportIdToSearchFor()
         {
-            return (await Db.Reports.Where(r => r.ReportId > 50000).FirstOrDefaultAsync()).ReportId;
+            return (await Db.Reports.Where(r => r.ReportId > 10181).FirstOrDefaultAsync()).ReportId;
         }
 
 

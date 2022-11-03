@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace EFCoreProjections.Cmd.Service
 {
-    public class EfReportServiceWithProjection : ServiceBase, IReportService
+    public class EfReportServiceWithProjectionNotArchived : ServiceBase, IReportService
     {    
 
-        public EfReportServiceWithProjection()
+        public EfReportServiceWithProjectionNotArchived()
             : base()
         {
             
@@ -19,10 +19,10 @@ namespace EFCoreProjections.Cmd.Service
         {
             var reportsQueryable =
                     Db.Reports
-                    .TagWith(QueryTag("Report List WITH projection ALL"))
+                    .TagWith(QueryTag("Report List WITH projection NON ARCHIVED"))
                     .Include(r => r.Config)
                     .Include(r => r.Comments)
-                    .Where(r => r.Name.StartsWith(nameLike))
+                    .Where(r => r.IsArchived == false && r.Name.StartsWith(nameLike))
                     .OrderBy(r => r.ReportId)
                     .Skip(Constants.DEFAULT_SKIP)
                     .Take(Constants.DEFAULT_TAKE)

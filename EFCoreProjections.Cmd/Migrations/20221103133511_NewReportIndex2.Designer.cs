@@ -4,14 +4,16 @@ using EFCoreProjections.Cmd.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace EFCoreProjections.Cmd.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221103133511_NewReportIndex2")]
+    partial class NewReportIndex2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,7 +50,7 @@ namespace EFCoreProjections.Cmd.Migrations
 
                     b.HasIndex("ConfigId");
 
-                    b.HasIndex("Name")
+                    b.HasIndex("Name", "IsArchived")
                         .IncludeProperties(new[] { "ReportId", "Status", "ConfigId" });
 
                     b.ToTable("Reports");

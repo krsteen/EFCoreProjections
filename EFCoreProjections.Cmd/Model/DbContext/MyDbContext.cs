@@ -6,9 +6,9 @@ namespace EFCoreProjections.Cmd.Model
 
     public class MyDbContext : DbContext
     {
-        public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }  
+        public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
 
-     
+
         public virtual DbSet<Report> Reports { get; set; }
 
         public virtual DbSet<ReportComment> ReportComments { get; set; }
@@ -26,7 +26,7 @@ namespace EFCoreProjections.Cmd.Model
             modelBuilder.Entity<ReportComment>()
               .HasOne(rc => rc.Report)
               .WithMany(r => r.Comments)
-              .HasForeignKey(rc=> rc.ReportId);
+              .HasForeignKey(rc => rc.ReportId);
 
             modelBuilder.Entity<Report>()
             .HasOne(r => r.Config)
@@ -34,15 +34,26 @@ namespace EFCoreProjections.Cmd.Model
             .HasForeignKey(r => r.ConfigId);
 
             //Index
-            //Covering index for light report list
+            //Covering index for light report list 
+
             modelBuilder.Entity<Report>()
-            .HasIndex(r => r.Name)
-            .IncludeProperties(r => new
-            {
-                r.ReportId,
-                r.Status
-            })
-            .HasFilter("[IsArchived] = 0");          
+             .HasIndex(r => new { r.Name })
+             .IncludeProperties(r => new
+             {
+                 r.ReportId,
+                 r.Status,
+                 r.ConfigId
+             });
+
+
+            //      modelBuilder.Entity<Report>()
+            //.HasIndex(r => new { r.Name, r.IsArchived })
+            //.IncludeProperties(r => new
+            //{
+            //    r.ReportId,
+            //    r.Status,
+            //    r.ConfigId
+            //});
         }
     }
 }
