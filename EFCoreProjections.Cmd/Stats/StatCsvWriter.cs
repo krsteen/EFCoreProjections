@@ -19,7 +19,7 @@ namespace EFCoreProjections.Cmd.Stats
             using (var writer = new StreamWriter($"{workingFolder}report.csv"))
             using (var csv = new CsvWriter(writer, configuration))
             {
-                csv.WriteRecords(stats.OrderBy(s=> s.TestIndex).ThenBy(s=> s.ServiceIndex));
+                csv.WriteRecords(stats);
             }
         }
     }
