@@ -19,12 +19,32 @@ namespace EFCoreProjections.Cmd.Service
         {
             var reportsQueryable =
                      Db.Reports
-                     .TagWith(QueryTag("Report WITH projection ALL same as non archived"))
+                     .TagWith(QueryTag("Report by id WITH projection NON ARCHIVED"))
                      .Include(r => r.Config)
                      .Include(r => r.Comments)
-                     .Where(r => r.ReportId == id)
+                     .Where(r => r.ReportId == id && !r.IsArchived)
                      .AsNoTracking()
                      .Select(r => new ReportListItemDto() { ReportId = r.ReportId, Name = r.Name, Status = r.Status, ConfigName = r.Config.Name });
+
+            var reports = await reportsQueryable.ToListAsync();
+
+            var reportsDto = Mapper.Map<List<ReportListItemDto>>(reports);
+
+            var result = new ReportResponse(reportsDto.Count, Serialize(reportsDto));
+
+            return result;
+        }
+
+        public async Task<ReportResponse> GetByNameAsync(string name)
+        {
+            var reportsQueryable =
+                      Db.Reports
+                      .TagWith(QueryTag("Report by name WITH projection NON ARCHIVED"))
+                      .Include(r => r.Config)
+                      .Include(r => r.Comments)
+                      .Where(r => r.Name == name && !r.IsArchived)
+                      .AsNoTracking()
+                      .Select(r => new ReportListItemDto() { ReportId = r.ReportId, Name = r.Name, Status = r.Status, ConfigName = r.Config.Name });
 
             var reports = await reportsQueryable.ToListAsync();
 

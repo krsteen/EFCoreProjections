@@ -22,7 +22,7 @@ namespace EFCoreProjections.Cmd
 
         static async Task Main()
         {
-            //await ResetDatabase();
+           // await ResetDatabase();
 
             Directory.CreateDirectory(WorkingFolder);          
 
@@ -30,8 +30,9 @@ namespace EFCoreProjections.Cmd
 
             await RunTestsOnService(new EfReportServiceWithProjection(), "EF Core WITH projection ALL");
 
-            await RunTestsOnService(new EfReportServiceWithProjectionNotArchived(), "EF Core WITH projection ALL Non Archived");
+            await RunTestsOnService(new EfReportServiceWithProjectionNotArchived(), "EF Core WITH projection Non Archived");
 
+            Lg("Stats for each operation");
 
             StatCsvWriter.Write(Stats, WorkingFolder);
 
@@ -56,7 +57,7 @@ namespace EFCoreProjections.Cmd
 
             ReportResponse reportResponse = null;
 
-            //SINGLE ITEM
+            //SINGLE ITEM BY ID
 
             await clearCacheService.ClearCache();
 
@@ -73,6 +74,24 @@ namespace EFCoreProjections.Cmd
 
             AddToSummary(service, "single report by id", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS);
             AddToStats(scenarioName, "single report by id", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
+
+            //SINGLE ITEM BY NAME
+
+            await clearCacheService.ClearCache();
+
+            spElapsed.Restart();
+
+            for (var testCount = 1; testCount <= TEST_ITERATIONS; testCount++)
+            {
+                reportResponse = await service.GetByNameAsync(Constants.REPORT_NAME_SEARCH);
+            }
+
+            spElapsed.Stop();
+
+            elapsedTotal += spElapsed.Elapsed.TotalMilliseconds;
+
+            AddToSummary(service, "single report by name", reportResponse.ResultAsJson, spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS);
+            AddToStats(scenarioName, "single report by name", spElapsed.Elapsed.TotalMilliseconds / TEST_ITERATIONS, reportResponse.ResultAsJson, reportResponse.ItemCount);
 
             //LIST
 

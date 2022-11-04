@@ -47,7 +47,7 @@ namespace EFCoreProjections.Cmd.Model
 
 
             modelBuilder.Entity<Report>()
-            .HasIndex(r => new { r.IsArchived, r.Name })
+            .HasIndex(r => new { r.Name, r.IsArchived })
             .IncludeProperties(r => new
             {
                 r.ReportId,
