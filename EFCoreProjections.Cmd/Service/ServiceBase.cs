@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using EFCoreProjections.Cmd.Model;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace EFCoreProjections.Cmd.Service
 {
@@ -41,12 +42,7 @@ namespace EFCoreProjections.Cmd.Service
 
         protected string Serialize(object whatToSerialize)
         {
-
-            return JsonConvert.SerializeObject(whatToSerialize, Formatting.None,
-                         new JsonSerializerSettings()
-                         {
-                             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                         });
+            return JsonSerializer.Serialize(whatToSerialize);
         }
     }
 }
